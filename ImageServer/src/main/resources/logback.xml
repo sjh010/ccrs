@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false" scan="true" scanPeriod="30 seconds">
+    <property name="LOG_HOME" value="/programs/log/image" />
+    
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d] [%thread] %-5p %c{10}\(%F:%M:%L\) - %m%n%ex{5}
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="dailyfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${SERVER_NAME}/image.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOG_HOME}/${SERVER_NAME}/image/image.log.%d{yyyy-MM-dd} </fileNamePattern> 
+            <!-- keep 60 days' worth of history -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d] [%thread] %-5level %logger{36} - %msg%n%ex{5} </pattern>
+        </encoder>
+    </appender>
+    
+    
+    <appender name="process_alive" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${SERVER_NAME}/alive.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOG_HOME}/${SERVER_NAME}/alive/alive.log.%d{yyyy-MM-dd} </fileNamePattern> 
+            <!-- keep 60 days' worth of history -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d] [%thread] %-5level %logger{36} - %msg%n%ex{5} </pattern>
+        </encoder>
+    </appender>
+    
+    
+    <appender name="eds" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${SERVER_NAME}/eds.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOG_HOME}/${SERVER_NAME}/eds/eds.log.%d{yyyy-MM-dd} </fileNamePattern> 
+            <!-- keep 60 days' worth of history -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d] [%thread] %-5level %logger{36} - %msg%n%ex{5} </pattern>
+        </encoder>
+    </appender>
+
+	 
+    <!-- Application Loggers -->
+    <logger name="com.mobileleader.image" level="DEBUG">
+        <appender-ref ref="dailyfile" />
+    </logger>
+    
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+    
+</configuration>

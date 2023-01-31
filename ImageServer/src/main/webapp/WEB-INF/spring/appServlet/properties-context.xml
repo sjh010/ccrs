@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+	
+	<context:property-placeholder/>
+	
+	<!-- ECM 연결 프로퍼티 -->
+	<util:properties id="ecmConfig" location="classpath:properties/ecm-properties.xml" />
+	
+
+	 <!-- bk -->
+   	 <beans:bean id="serviceProperty" class="com.inzisoft.crypto.properties.ServiceProperty">
+		<beans:property name="encryptFolder"><beans:value>/programs/data</beans:value></beans:property>
+		<beans:property name="decryptFolder"><beans:value>/programs/data</beans:value></beans:property>
+ 		<beans:property name="licenseFile"><beans:value>C://DATA//sources//ImageServer//data//iisClient.dat</beans:value></beans:property>
+		<beans:property name="keyFile"><beans:value>C://DATA//sources//ImageServer//data//inzi_enc_ccrs_bpr.dat</beans:value></beans:property>
+		<beans:property name="jniFile"><beans:value>C://DATA//sources//ImageServer//data//InziiscFileCryptJNI.dll</beans:value></beans:property>				
+		<beans:property name="cryptoFile"><beans:value>C://DATA//sources//ImageServer//data//InziiscFileCrypt2.dll</beans:value></beans:property>
+	</beans:bean> 
+		 
+		
+	 <!-- local -->
+<!--     	 <beans:bean id="serviceProperty" class="com.inzisoft.crypto.properties.ServiceProperty">
+		<beans:property name="encryptFolder"><beans:value>/programs/data</beans:value></beans:property>
+		<beans:property name="decryptFolder"><beans:value>/programs/data</beans:value></beans:property>
+ 		<beans:property name="licenseFile"><beans:value>D://Projects//11.ccrs//Sources//ImageServer//data//iisClient.dat</beans:value></beans:property>
+		<beans:property name="keyFile"><beans:value>D://Projects//11.ccrs//Sources//ImageServer//data//inzi_enc_ccrs_bpr.dat</beans:value></beans:property>
+		<beans:property name="jniFile"><beans:value>D://Projects//11.ccrs//Sources//ImageServer//data//InziiscFileCryptJNI.dll</beans:value></beans:property>				
+		<beans:property name="cryptoFile"><beans:value>D://Projects//11.ccrs//Sources//ImageServer//data//InziiscFileCrypt2.dll</beans:value></beans:property>
+	</beans:bean> 
+	 -->
+	 
+	 
+	<!-- dev -->
+<!--    	<beans:bean id="serviceProperty" class="com.inzisoft.crypto.properties.ServiceProperty">
+		<beans:property name="encryptFolder"><beans:value>/programs/data/image</beans:value></beans:property>
+		<beans:property name="decryptFolder"><beans:value>/programs/data/image</beans:value></beans:property>
+ 		<beans:property name="licenseFile"><beans:value>/home/weblogic/inzisoft/inziCrypto/license/license.csl</beans:value></beans:property>
+		<beans:property name="keyFile"><beans:value>/programs/app/inziCrypto/key/inzi_enc_ccrs_bpr.dat</beans:value></beans:property>
+		<beans:property name="jniFile"><beans:value>InziiscFileCryptJNI</beans:value></beans:property>				
+		<beans:property name="cryptoFile"><beans:value>InziiscFileCrypt</beans:value></beans:property>
+	</beans:bean> -->
+</beans:beans>

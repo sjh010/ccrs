@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<weblogic-web-app>
+	<context-root>/</context-root>
+    <resource-description>
+        <jndi-name>jdbc/paperless</jndi-name>
+        <res-ref-name>jdbc/paperless></res-ref-name>
+    </resource-description>
+    <jsp-descriptor>
+        <page-check-seconds>2</page-check-seconds>
+    </jsp-descriptor>
+</weblogic-web-app>

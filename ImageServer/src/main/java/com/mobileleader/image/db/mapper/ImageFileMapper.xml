@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mobileleader.image.db.mapper.ImageFileMapper">
+	
+ 	<resultMap id="BaseResultMap" type="com.mobileleader.image.db.dto.ImageFileDto">
+		<id column="MAIN_KEY" 			property="mainKey" 		jdbcType="VARCHAR" />
+		<id column="DOC_ID" 			property="docId" 		jdbcType="VARCHAR" />
+		<result column="DOC_TITLE" 		property="docTitle" 	jdbcType="VARCHAR" />
+		<result column="PAGE_CNT" 		property="pageCnt" 		jdbcType="INTEGER" />
+		<result column="VERSION_INFO" 	property="versionInfo" 	jdbcType="INTEGER" />
+		<result column="DOC_TYPE" 		property="docType" 		jdbcType="VARCHAR" />
+		<result column="DELETE_YN" 		property="deleteYn" 	jdbcType="VARCHAR" />
+		<result column="FUNNELS" 		property="funnels" 		jdbcType="VARCHAR" />
+		<result column="FILE_ID" 		property="fileId" 		jdbcType="VARCHAR" />
+		<result column="FILE_NAME" 		property="fileName" 	jdbcType="VARCHAR" />				
+		<result column="CREATE_TIME" 	property="createTime" 	jdbcType="TIMESTAMP" />
+		<result column="MODIFY_TIME" 	property="modifyTime" 	jdbcType="TIMESTAMP" />
+		<result column="FILE_ORDER" 	property="fileOrder" 	jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		MAIN_KEY,
+		DOC_ID,
+		DOC_TITLE,
+		PAGE_CNT, 
+		VERSION_INFO,
+		DOC_TYPE, 
+		DELETE_YN, 
+		FUNNELS, 
+		FILE_ID, 
+		FILE_NAME,
+		FILE_ORDER,
+		CREATE_TIME, 
+		MODIFY_TIME
+	</sql>
+
+	
+	<!-- public ArrayList<ImageFileDto> select(ImageFileDto dto); --> 
+	<select id="selectList" parameterType="com.mobileleader.image.db.dto.ImageFileDto" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />	
+		FROM 
+			image_file
+		RIGHT OUTER JOIN
+		(
+			SELECT 	MAX(VERSION_INFO) AS MAX_VERSION_INFO, MAIN_KEY, DOC_ID
+			FROM 	IMAGE_FILE
+			WHERE	MAIN_KEY = #{mainKey, jdbcType=VARCHAR}
+			GROUP BY MAIN_KEY, DOC_ID
+		)
+		USING
+		(
+			MAIN_KEY, DOC_ID
+		)
+		WHERE	1=1
+		<if test="docId != null and docId != ''">
+			AND DOC_ID = #{docId}
+		</if>
+		<if test='deleteYn != null and deleteYn.equals("N")'>
+			AND DELETE_YN = 'N'
+		</if>
+		<choose>
+			<when test="versionInfo == 999">
+				AND VERSION_INFO <![CDATA[>=]]> 0
+			</when>
+			<otherwise>
+				AND VERSION_INFO = MAX_VERSION_INFO
+			</otherwise>
+		</choose>
+		ORDER BY FILE_ORDER, DOC_ID, VERSION_INFO 
+	</select>
+	
+	<insert id="insertWithVersionInfo"  parameterType="com.mobileleader.image.db.dto.ImageFileDto">
+		<selectKey keyProperty="versionInfo" resultType="int" order="BEFORE">
+			SELECT 	nvl(MAX(VERSION_INFO), 0)+1
+			FROM 	IMAGE_FILE
+			WHERE	MAIN_KEY	= #{mainKey,	jdbcType=VARCHAR}
+			AND		DOC_ID 		= #{docId,		jdbcType=VARCHAR}
+		</selectKey>
+		INSERT 
+		INTO 	IMAGE_FILE
+		(
+			MAIN_KEY,
+			DOC_ID,
+			<if test="fileOrder > 0">
+				FILE_ORDER,
+			</if>
+			<if test="docTitle != null and docTitle != ''">
+				DOC_TITLE,
+			</if>
+			<if test="pageCnt > 0">
+				PAGE_CNT, 
+			</if>
+			<if test="versionInfo > 0">
+				VERSION_INFO,
+			</if>
+			<if test="docType != null and docType != ''">
+				DOC_TYPE, 
+			</if>
+			<if test="deleteYn != null and deleteYn != ''">
+				DELETE_YN,
+			</if>
+			<if test="funnels!= null and funnels != ''">
+				FUNNELS, 
+			</if>
+			<if test="fileId != null and fileId != ''">
+				FILE_ID, 
+			</if>
+			<if test="fileName != null and fileName != ''">
+				FILE_NAME,
+			</if>
+			CREATE_TIME, 
+			MODIFY_TIME
+		)
+		VALUES 
+		(
+			#{mainKey, 		jdbcType=VARCHAR},
+			#{docId, 		jdbcType=VARCHAR},
+		<if test="fileOrder > 0">
+			#{fileOrder,	jdbcType=INTEGER},
+		</if>
+		<if test="docTitle != null and docTitle != ''">
+			#{docTitle,		jdbcType=VARCHAR},
+		</if>
+		<if test="pageCnt > 0">
+			#{pageCnt, 		jdbcType=INTEGER},
+		</if>
+		<if test="versionInfo > 0">
+			#{versionInfo, 	jdbcType=INTEGER},
+		</if>
+		<if test="docType != null and docType != ''">
+			#{docType, 		jdbcType=VARCHAR},
+		</if>
+		<if test="deleteYn != null and deleteYn != ''">
+			#{deleteYn, 	jdbcType=VARCHAR},
+		</if>
+		<if test="funnels!= null and funnels != ''">
+			#{funnels, 		jdbcType=VARCHAR},
+		</if>
+		<if test="fileId != null and fileId != ''">
+			#{fileId, 		jdbcType=VARCHAR},
+		</if>
+		<if test="fileName != null and fileName != ''">
+			#{fileName, 	jdbcType=VARCHAR},
+		</if>
+			<choose>
+			        <when test ="createTime != null">
+			                TO_DATE(#{createTime, jdbcType=VARCHAR}, 'YYYYMMDDHH24MISS'),
+			        </when>
+			        <otherwise>
+			                SYSTIMESTAMP,
+			        </otherwise>
+			</choose>
+			<choose>
+			        <when test ="modifyTime != null">
+			                TO_DATE(#{modifyTime, jdbcType=TIMESTAMP}, 'YYYYMMDDHH24MISS')
+			        </when>
+			        <otherwise>
+			                SYSTIMESTAMP
+			        </otherwise>
+			</choose>
+		)
+	</insert>
+	
+	<update id="updateDeleteYn" parameterType="com.mobileleader.image.db.dto.ImageFileDto">
+		UPDATE 	IMAGE_FILE
+		SET		DELETE_YN 	= #{deleteYn,	jdbcType=VARCHAR},
+				MODIFY_TIME = SYSTIMESTAMP
+		WHERE	MAIN_KEY	= #{mainKey,	jdbcType=VARCHAR}
+		AND		DOC_ID 		= #{docId,		jdbcType=VARCHAR}
+	</update>
+	
+<!-- 	<select id="selectLatestOne" parameterType="com.mobileleader.image.db.dto.ImageFileDto" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />	
+		FROM 
+			IMAGE_FILE
+		RIGHT OUTER JOIN
+		(
+			SELECT 	MAX(VERSION_INFO) AS MAX_VERSION_INFO, MAIN_KEY, DOC_ID
+			FROM 	IMAGE_FILE
+			WHERE	MAIN_KEY 	= #{mainKey, jdbcType=VARCHAR}
+			AND		DOC_ID 		= #{docId, jdbcType=VARCHAR}
+			GROUP BY MAIN_KEY, DOC_ID
+		)
+		USING
+		(
+			MAIN_KEY, DOC_ID
+		)
+		WHERE 		VERSION_INFO = MAX_VERSION_INFO
+	</select> -->
+</mapper>
+ 

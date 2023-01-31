@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mobileleader.image.db.mapper.ImageStoreMapper">
+	
+		
+	<resultMap id="BaseResultMap" type="com.mobileleader.image.db.dto.ImageStoreDto">
+		<id column="MAIN_KEY" 					property="mainKey"				jdbcType="VARCHAR" />
+		<result column="TASK_KEY" 				property="taskKey"				jdbcType="VARCHAR" />
+		<result column="BRANCH_CODE" 			property="branchCode" 			jdbcType="VARCHAR" />
+		<result column="BRANCH_TITLE" 			property="branchTitle" 			jdbcType="VARCHAR" />
+		<result column="GUIDE_NAME" 			property="guideName"	 		jdbcType="VARCHAR" />
+		<result column="EMPLOYEE_NAME" 			property="employeeName" 		jdbcType="VARCHAR" />
+		<result column="EMPLOYEE_ID" 			property="employeeId" 			jdbcType="VARCHAR" />
+		<result column="CUSTOMER_NAME" 			property="customerName" 		jdbcType="VARCHAR" />
+		<result column="DOC_MAPPING_COUNT" 		property="docMappingCount" 		jdbcType="INTEGER" />
+		<result column="PREVIOUS_DEVICE_INFO" 	property="previousDeviceInfo"	jdbcType="VARCHAR" />
+		<result column="INSOURCE_ID" 			property="insourceId" 			jdbcType="VARCHAR" />
+		<result column="INSOURCE_TITLE" 		property="insourceTitle"		jdbcType="VARCHAR" />
+		<result column="MEMO" 					property="memo"					jdbcType="VARCHAR" />
+		<result column="TEL" 					property="tel"					jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" 			property="createTime"	 		jdbcType="TIMESTAMP" />
+		<result column="MODIFY_TIME" 			property="modifyTime"	 		jdbcType="TIMESTAMP" />
+	</resultMap>
+				
+	<sql id="base_column_list">
+		MAIN_KEY, 
+		TASK_KEY,
+		BRANCH_CODE,
+		BRANCH_TITLE,
+		GUIDE_NAME, 
+		EMPLOYEE_NAME,
+		EMPLOYEE_ID, 
+		CUSTOMER_NAME, 
+		DOC_MAPPING_COUNT, 
+		PREVIOUS_DEVICE_INFO, 
+		INSOURCE_ID,
+		INSOURCE_TITLE, 
+		MEMO,
+		TEL,
+		CREATE_TIME, 
+		MODIFY_TIME
+	</sql>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap">
+		SELECT
+			<include refid="base_column_list" />
+		FROM
+			IMAGE_STORE
+		WHERE
+			MAIN_KEY = #{mainKey, jdbcType=VARCHAR}
+	</select>
+	
+	<insert id="updateWithMappingCount" parameterType="com.mobileleader.image.db.dto.ImageStoreDto">
+		<selectKey keyProperty="docMappingCount" resultType="int" order="BEFORE">
+		 	SELECT  COUNT(*)
+            FROM 
+            (
+            	SELECT 	MAIN_KEY, DOC_ID
+            	FROM 	IMAGE_FILE
+            	WHERE	DELETE_YN 	= 'N'
+            	AND		MAIN_KEY 	= #{mainKey}
+            	GROUP BY MAIN_KEY, DOC_ID
+            )
+		</selectKey>
+		UPDATE
+				IMAGE_STORE
+		SET
+			<if test="taskKey != null and taskKey != ''">
+				TASK_KEY = #{taskKey, jdbcType=VARCHAR},
+			</if>
+			<if test="branchCode != null and branchCode != ''">
+				BRANCH_CODE = #{branchCode, jdbcType=VARCHAR},
+			</if>
+			<if test="branchTitle != null and branchTitle != ''">
+				BRANCH_TITLE = #{branchTitle, jdbcType=VARCHAR},
+			</if>
+			<if test="guideName != null and guideName != ''">
+				GUIDE_NAME = #{guideName, jdbcType=VARCHAR},
+			</if>
+			<if test="employeeName != null and employeeName != ''">
+				EMPLOYEE_NAME = #{employeeName, jdbcType=VARCHAR},
+			</if>
+			<if test="employeeId != null and employeeId != ''">
+				EMPLOYEE_ID = #{employeeId, jdbcType=VARCHAR},
+			</if>
+			<if test="customerName != null and customerName != ''">
+				CUSTOMER_NAME = #{customerName, jdbcType=VARCHAR},
+			</if>
+			<if test="docMappingCount > 0">
+				DOC_MAPPING_COUNT = #{docMappingCount, jdbcType=VARCHAR},
+			</if>
+			<if test="previousDeviceInfo != null and previousDeviceInfo != ''">
+				PREVIOUS_DEVICE_INFO = #{previousDeviceInfo, jdbcType=VARCHAR},
+			</if>
+			<if test="insourceId != null and insourceId != ''">
+				INSOURCE_ID = #{insourceId, jdbcType=VARCHAR},
+			</if>
+			<if test="insourceTitle != null and insourceTitle != ''">
+				INSOURCE_TITLE = #{insourceTitle, jdbcType=VARCHAR},
+			</if>
+			<if test="memo != null and memo != ''">
+				MEMO = #{memo, jdbcType=VARCHAR},
+			</if>
+			<if test="tel != null and tel != ''">
+				TEL = #{tel, jdbcType=VARCHAR},
+			</if>
+				MODIFY_TIME = SYSTIMESTAMP
+		WHERE
+				MAIN_KEY = #{mainKey, jdbcType=VARCHAR}
+	</insert>
+	
+	<insert id="insertWithMappingCount" parameterType="com.mobileleader.image.db.dto.ImageStoreDto">
+		<selectKey keyProperty="docMappingCount" resultType="int" order="BEFORE">
+		 	SELECT  COUNT(*)
+            FROM 
+            (
+            	SELECT 	MAIN_KEY, DOC_ID
+            	FROM 	IMAGE_FILE
+            	WHERE	DELETE_YN 	= 'N'
+            	AND		MAIN_KEY 	= #{mainKey}
+            	GROUP BY MAIN_KEY, DOC_ID
+            )
+		</selectKey>
+		
+		INSERT INTO image_store
+		(
+			MAIN_KEY,
+			TASK_KEY,
+			BRANCH_CODE,
+			BRANCH_TITLE, 
+			GUIDE_NAME, 
+			EMPLOYEE_NAME,
+			EMPLOYEE_ID, 
+			CUSTOMER_NAME, 
+			DOC_MAPPING_COUNT, 
+			PREVIOUS_DEVICE_INFO, 
+			INSOURCE_ID,
+			INSOURCE_TITLE, 
+			MEMO,
+			TEL,
+			CREATE_TIME,
+			MODIFY_TIME
+		)
+		VALUES 
+		(
+			#{mainKey, 				jdbcType=VARCHAR},
+			#{taskKey, 				jdbcType=VARCHAR},
+			#{branchCode, 			jdbcType=VARCHAR},
+			#{branchTitle, 			jdbcType=VARCHAR},
+			#{guideName, 			jdbcType=VARCHAR},
+			#{employeeName, 		jdbcType=VARCHAR},
+			#{employeeId, 			jdbcType=VARCHAR},
+			#{customerName, 		jdbcType=VARCHAR},
+			#{docMappingCount, 		jdbcType=VARCHAR},
+			#{previousDeviceInfo,	jdbcType=VARCHAR},
+			#{insourceId, 			jdbcType=VARCHAR},
+			#{insourceTitle,		jdbcType=VARCHAR},
+			#{memo, 				jdbcType=VARCHAR},
+			#{tel,					jdbcType=VARCHAR},
+			<choose>
+			        <when test ="createTime != null">
+			                TO_DATE(#{createTime, jdbcType=TIMESTAMP}, 'YYYYMMDDHH24MISS'),
+			        </when>
+			        <otherwise>
+			                SYSTIMESTAMP,
+			        </otherwise>
+			</choose>
+			<choose>
+			        <when test ="modifyTime != null">
+			                TO_DATE(#{modifyTime, jdbcType=TIMESTAMP}, 'YYYYMMDDHH24MISS')
+			        </when>
+			        <otherwise>
+			                SYSTIMESTAMP
+			        </otherwise>
+			</choose>
+		)		
+	</insert>
+	
+	<!-- public int update(ImageStoreDto dto) throws SQLException; -->
+<!-- 	<update id="update" parameterType="com.mobileleader.image.db.dto.ImageStoreDto">
+		UPDATE 
+			image_Store  
+		SET 
+			EAI_YN = 'Y' 
+		WHERE 
+			MAIN_KEY = #{mainKey, jdbcType=VARCHAR}		
+	</update>
+	
+	  -->
+	  
+</mapper>
+ 

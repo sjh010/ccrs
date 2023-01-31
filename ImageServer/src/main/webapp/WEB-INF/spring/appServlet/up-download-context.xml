@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd		
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+ 
+	
+	<!-- 파일 업로드 -->
+     <beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">        
+        <beans:property name="maxUploadSize"   value="104857600" />	<!-- 파일업로드 용량 한도 100M (1024*1024*100) -->       
+        <beans:property name="maxInMemorySize" value="104857600" /> <!-- 파일이 메모리에 상주할 수 있는 용량 -->
+        <beans:property name="defaultEncoding" value="UTF-8" />		<!-- 한글처리 -->
+    </beans:bean>
+	
+	
+</beans:beans>

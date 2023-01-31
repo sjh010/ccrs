@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+	
+
+	 <!-- local -->
+<!--    	 <beans:bean id="pdf2ImageProperty" class="com.inzisoft.pdf2image.properties.Pdf2ImageProperty">
+		<beans:property name="soFile"><beans:value>/programs/data</beans:value></beans:property>
+		<beans:property name="licenseFile"><beans:value>/programs/data</beans:value></beans:property>
+	</beans:bean> 
+  -->
+	<!-- dev -->
+    <beans:bean id="pdf2ImageProperty" class="com.inzisoft.pdf2image.properties.Pdf2ImageProperty">
+		<beans:property name="soFile"><beans:value>/programs/app/socr/engine/modules/libJNI_InziPDF2Image.so</beans:value></beans:property>
+		<beans:property name="licenseFile"><beans:value>/home/weblogic/inzisoft/socr/license/license.xml</beans:value></beans:property>
+	</beans:bean> 
+   	 
+	 
+</beans:beans>
+   

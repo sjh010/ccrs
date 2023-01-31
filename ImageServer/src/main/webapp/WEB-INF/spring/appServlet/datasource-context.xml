@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+	<!-- JDBC 연결 --> <!--     	
+	<bean id="dataSource_oracle" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@192.168.12.42:1521:ccrsbetest"/>
+        <property name="username" value="ppl_ccrs_app"/>
+        <property name="password" value="pplccrsapp!234P"/>
+    </bean>  -->
+    
+    <!-- JNDI 연결 (tomcat context.xml 에 등록되어야함) -->
+     <bean id="dataSource_oracle" class="org.springframework.jndi.JndiObjectFactoryBean">
+ 		<property name="jndiName" value="jdbc/paperless"></property>
+ 		<property name="resourceRef" value="true"></property>
+ 	</bean>	
+     
+    <bean name="template" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_oracle"/>
+	</bean> 
+	    
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	    
+	<!-- Transaction manager -->    
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource_oracle" />
+	</bean>
+	
+	<!-- DB 밴더단위로 다르게 처리 -->
+	<bean id="vendorProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="Oracle">oracle</prop>
+				<prop key="SQL Server">sqlserver</prop>
+				<prop key="DB2">db2</prop>
+				<prop key="MySQL">mysql</prop>
+				<prop key="Sqlite">sqlite</prop>
+				<prop key="Sqlite3">sqlite</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="databaseIdProvider" class="org.apache.ibatis.mapping.VendorDatabaseIdProvider">
+		<property name="properties" ref="vendorProperties" />		
+	</bean>
+	
+	<!-- SQL sessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource_oracle" />
+		<property name="typeHandlersPackage" value="com.mobileleader.image.db.typehandler" />
+ 		<property name="mapperLocations">
+			<list>
+				<value>classpath:com/mobileleader/image/db/mapper/*.xml</value>
+			</list>
+		</property>		
+		<property name="databaseIdProvider" ref="databaseIdProvider" />
+	</bean>
+ 
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory"/>
+	</bean>
+	 
+			
+</beans>
