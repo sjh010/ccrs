@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mobileleader.edoc.db.mapper.EdocGrpProcsMgmtMapper">
+
+	<resultMap id="baseMap" type="com.mobileleader.edoc.db.dto.EdocGrpProcsMgmtDto">
+		<result column="ELEC_DOC_GROUP_INEX_NO"	property="elecDocGroupInexNo"	jdbcType="VARCHAR" />
+		<result column="CRTN_TIME"				property="crtnTime"				jdbcType="TIMESTAMP" />
+		<result column="PROCS_STEP_CD"			property="procsStepCd"			jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_STCD"		property="procsStepStcd"		jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_MSG_CD"		property="procsStepMsgCd"		jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_ST_TIME"		property="procsStepStTime"		jdbcType="TIMESTAMP" />
+		<result column="PROCS_STEP_ED_TIME"		property="procsStepEdTime"		jdbcType="TIMESTAMP" />
+		<result column="SVR_IP"					property="svrIp"				jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="base_column_list">
+		ELEC_DOC_GROUP_INEX_NO
+		,CRTN_TIME
+		,PROCS_STEP_CD
+		,PROCS_STEP_STCD
+		,PROCS_STEP_MSG_CD
+		,PROCS_STEP_ST_TIME
+		,PROCS_STEP_ED_TIME
+		,SVR_IP
+	</sql>
+	
+	<insert id="insert" parameterType="edocGrpProcsMgmtDto">
+		INSERT 
+		INTO 		EDS_ELEC_DOC_GROUP_PROCS_MGMT
+		(
+			<include refid="base_column_list" />
+		)
+		VALUES 
+		(
+					#{elecDocGroupInexNo, 	jdbcType=VARCHAR}
+					,#{crtnTime, 			jdbcType=TIMESTAMP}
+					,#{procsStepCd, 		jdbcType=VARCHAR}
+					,#{procsStepStcd, 		jdbcType=VARCHAR}
+					,#{procsStepMsgCd, 		jdbcType=VARCHAR}
+					,#{procsStepStTime, 	jdbcType=TIMESTAMP}
+					,#{procsStepEdTime, 	jdbcType=TIMESTAMP}
+					,#{svrIp, 				jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<select id="selectByPk" resultMap="baseMap">
+		SELECT 	<include refid="base_column_list" /> 
+		FROM 	EDS_ELEC_DOC_GROUP_PROCS_MGMT
+		WHERE 	ELEC_DOC_GROUP_INEX_NO 			= #{elecDocGroupIndexNo}
+	</select>
+	
+	<update id="updateGeneral" parameterType="hashmap">
+		UPDATE 	EDS_ELEC_DOC_GROUP_PROCS_MGMT
+		SET 	
+				ELEC_DOC_GROUP_INEX_NO 	= #{newValue.elecDocGroupInexNo}
+			<if test="newValue.crtnTime != null">
+				,CRTN_TIME              = #{newValue.crtnTime}
+			</if>
+			<if test="newValue.procsStepCd != null and newValue.procsStepCd != ''">
+				,PROCS_STEP_CD          = #{newValue.procsStepCd}
+			</if>
+			<if test="newValue.procsStepStcd != null and newValue.procsStepStcd != ''">
+				,PROCS_STEP_STCD        = #{newValue.procsStepStcd}
+			</if>
+			<if test="newValue.procsStepMsgCd != null and newValue.procsStepMsgCd != ''">
+				,PROCS_STEP_MSG_CD      = #{newValue.procsStepMsgCd}
+			</if>
+			<if test="newValue.procsStepStTime != null">
+				,PROCS_STEP_ST_TIME     = #{newValue.procsStepStTime}
+			</if>
+			<if test="newValue.procsStepEdTime != null">
+				,PROCS_STEP_ED_TIME     = #{newValue.procsStepEdTime}
+			</if>
+			<if test="newValue.svrIp != null and newValue.svrIp != ''">
+				,SVR_IP                 = #{newValue.svrIp}
+			</if>
+		<where>
+			<if test="condition.edocGrpIdxNo != null and condition.edocGrpIdxNo != ''">
+				ELEC_DOC_GROUP_INEX_NO	= #{condition.edocGrpIdxNo}
+			</if>
+			<if test="condition.crtnTime != null">
+				AND CRTN_TIME			= #{condition.crtnTime}
+			</if>
+			<if test="condition.procsStepCd != null and condition.procsStepCd != ''">
+				AND PROCS_STEP_CD		= #{condition.procsStepCd}
+			</if>
+			<if test="condition.procsStepStcd != null and condition.procsStepStcd != ''">
+				AND PROCS_STEP_STCD		= #{condition.procsStepStcd}
+			</if>
+			<if test="condition.procsStepMsgCd != null and condition.procsStepMsgCd != ''">
+				AND PROCS_STEP_MSG_CD	= #{condition.procsStepMsgCd}
+			</if>
+			<if test="condition.procsStepStTime != null">
+				AND PROCS_STEP_ST_TIME	= #{condition.procsStepStTime}
+			</if>
+			<if test="condition.procsStepEdTime != null">
+				AND PROCS_STEP_ED_TIME	= #{condition.procsStepEdTime}
+			</if>
+			<if test="condition.svrIp != null and condition.svrIp != ''">
+				AND SVR_IP				= #{condition.svrIp}
+			</if>
+		</where>
+	</update>
+	
+	<update id="update" parameterType="edocGrpProcsMgmtDto">
+		UPDATE	EDS_ELEC_DOC_GROUP_PROCS_MGMT
+		SET 	
+				PROCS_STEP_CD 			= #{procsStepCd}
+				,PROCS_STEP_STCD 		= #{procsStepStcd}
+				,PROCS_STEP_MSG_CD 		= #{procsStepMsgCd}
+			<if test="procsStepStTime != null">
+				,PROCS_STEP_ST_TIME 	= #{procsStepStTime}
+			</if>
+			<if test="procsStepEdTime != null">
+				,PROCS_STEP_ED_TIME 	= #{procsStepEdTime}
+			</if>
+		WHERE
+				ELEC_DOC_GROUP_INEX_NO 	= #{elecDocGroupInexNo}
+	</update>
+	
+	<delete id="deleteProcsMgmtData" parameterType="edocGrpProcsMgmtDto">
+		DELETE FROM EDS_ELEC_DOC_GROUP_PROCS_MGMT
+		WHERE		PROCS_STEP_CD					= '00'
+		AND 		PROCS_STEP_STCD					= '0'
+		<if test="procsStepEdTime != null">
+			AND		PROCS_STEP_ED_TIME	<![CDATA[<]]> #{procsStepEdTime, jdbcType=TIMESTAMP}
+		</if>
+	</delete>
+	
+	<delete id="deleteTmpMgmtData" parameterType="java.util.List">
+		DELETE FROM EDS_ELEC_DOC_GROUP_PROCS_MGMT
+		WHERE 		PROCS_STEP_CD				= '00'
+		AND 		PROCS_STEP_STCD				= '1'
+		AND 		ELEC_DOC_GROUP_INEX_NO			
+		IN
+			<foreach collection="list" item="tmpStrgVo" open="(" close=")" separator=", ">
+				#{tmpStrgVo.elecDocGroupInexNo}
+			</foreach>
+	</delete>
+		
+</mapper>

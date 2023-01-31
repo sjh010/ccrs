@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mobileleader.edoc.db.mapper.EdocFileProcsMgmtMapper">
+
+	<resultMap id="baseMap" type="com.mobileleader.edoc.db.dto.EdocFileProcsMgmtDto">
+		<result column="ELEC_DOC_GROUP_INEX_NO"	property="elecDocGroupInexNo"	jdbcType="VARCHAR" />
+		<result column="FILE_SEQ_NO"			property="fileSeqNo"			jdbcType="INTEGER" />
+		<result column="LEFRM_CD"				property="lefrmCd"				jdbcType="VARCHAR" />
+		<result column="LEFRM_NM"				property="lefrmNm"				jdbcType="VARCHAR" />
+		<result column="XML_FILE_NM"			property="xmlFileNm"			jdbcType="VARCHAR" />
+		<result column="PDF_FILE_NM"			property="pdfFileNm"			jdbcType="VARCHAR" />
+		<result column="PAGE_CNT"				property="pageCnt"				jdbcType="INTEGER" />
+		<result column="PROCS_STEP_CD"			property="procsStepCd"			jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_STCD"		property="procsStepStcd"		jdbcType="VARCHAR" />
+		<result column="CRTN_TIME"				property="crtnTime"				jdbcType="TIMESTAMP" />
+		<result column="LEFRM_VER"				property="lefrmVer"				jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="base_column_list">
+		ELEC_DOC_GROUP_INEX_NO
+		,FILE_SEQ_NO
+		,LEFRM_CD 
+		,LEFRM_NM
+		,XML_FILE_NM
+		,PDF_FILE_NM
+		,PAGE_CNT
+		,PROCS_STEP_CD
+		,PROCS_STEP_STCD
+		,CRTN_TIME
+		,LEFRM_VER
+	</sql>
+	
+	<delete id="deleteGeneral" parameterType="edocFileProcsMgmtDto">
+		DELETE 
+		FROM 	EDS_ELEC_DOC_FILE_PROCS_MGMT
+		WHERE	
+				ELEC_DOC_GROUP_INEX_NO 			= #{elecDocGroupInexNo}
+	</delete>
+	
+	<insert id="insert" parameterType="edocFileProcsMgmtDto">
+		INSERT 
+		INTO 	EDS_ELEC_DOC_FILE_PROCS_MGMT
+		(
+			<include refid="base_column_list" />
+		)
+		VALUES 
+		(
+				#{elecDocGroupInexNo, 	jdbcType=VARCHAR}
+				,#{fileSeqNo, 			jdbcType=VARCHAR}
+				,#{lefrmCd, 			jdbcType=VARCHAR}
+				,#{lefrmNm, 			jdbcType=VARCHAR}
+				,#{xmlFileNm, 			jdbcType=VARCHAR}
+				,#{pdfFileNm, 			jdbcType=VARCHAR}
+				,#{pageCnt, 			jdbcType=VARCHAR}
+				,#{procsStepCd, 		jdbcType=VARCHAR}
+				,#{procsStepStcd, 		jdbcType=VARCHAR}
+				,#{crtnTime, 			jdbcType=TIMESTAMP}
+				,#{lefrmVer, 			jdbcType=VARCHAR}
+		)
+	</insert>
+</mapper>

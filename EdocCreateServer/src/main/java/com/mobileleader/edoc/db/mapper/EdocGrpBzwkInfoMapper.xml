@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mobileleader.edoc.db.mapper.EdocGrpBzwkInfoMapper">
+	
+	<resultMap id="edocBzwkInfoMap" type="com.mobileleader.edoc.db.dto.EdocGrpBzwkInfoDto">
+		<id column="ELEC_DOC_GROUP_INEX_NO" 	property="elecDocGroupInexNo" 	jdbcType="VARCHAR" />
+		<result column="MPNG_KEY" 				property="mappingKey" 			jdbcType="VARCHAR" />
+		<result column="SCN_NO" 				property="scnNo" 				jdbcType="VARCHAR" />
+		<result column="SUB_SCN_NO" 			property="subScrnNo" 			jdbcType="VARCHAR" />
+		<result column="DSRB_CD" 				property="dsrbCd" 				jdbcType="VARCHAR" />
+		<result column="DSRB_NM" 				property="dsrbNm" 				jdbcType="VARCHAR" />
+		<result column="HNDR_NO" 				property="hndrNo" 				jdbcType="VARCHAR" />
+		<result column="HNDR_NM" 				property="hndrNm" 				jdbcType="VARCHAR" />
+		<result column="TRMN_NO" 				property="trmnNo" 				jdbcType="VARCHAR" />
+		<result column="PRCS_TYCD" 				property="prcsTycd" 			jdbcType="VARCHAR" />
+		<result column="REG_TIME" 				property="regTime" 				jdbcType="TIMESTAMP" />
+		<result column="MAIN_KEY" 				property="mainKey" 				jdbcType="VARCHAR" />
+		<result column="TASK_KEY" 				property="taskKey" 				jdbcType="VARCHAR" />
+		<result column="CUSTOMER_NAME" 			property="customerName" 		jdbcType="VARCHAR" />
+		<result column="INSOURCE_ID" 			property="insourceId" 			jdbcType="VARCHAR" />
+		<result column="INSOURCE_TITLE" 		property="insourceTitle" 		jdbcType="VARCHAR" />
+		<result column="MEMO" 					property="memo" 				jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="edoc_bzwk_column_list">
+		ELEC_DOC_GROUP_INEX_NO
+		,MPNG_KEY
+		,SCN_NO
+		,SUB_SCRN_NO
+		,DSRB_CD
+		,DSRB_NM
+		,HNDR_NO
+		,HNDR_NM
+		,REG_TIME
+		,PRCS_TYCD
+		,TRMN_NO
+		,MAIN_KEY
+		,TASK_KEY
+		,CUSTOMER_NAME
+		,INSOURCE_ID
+		,INSOURCE_TITLE
+		,MEMO
+	</sql>
+	
+	<insert id="insert" parameterType="edocGrpBzwkInfoDto">
+		INSERT 
+		INTO 	EDS_ELEC_DOC_GROUP_BZWK_INFO
+		(
+			<include refid="edoc_bzwk_column_list" />
+		)
+		VALUES
+		(
+			#{elecDocGroupInexNo, 	jdbcType=VARCHAR}
+			<choose>
+				<when test="mappingKey != null and mappingKey != ''">
+					,#{mappingKey,			jdbcType=VARCHAR}
+				</when>
+				<otherwise>
+					,'NOMAP'
+				</otherwise>
+			</choose>
+			,#{scnNo, 				jdbcType=VARCHAR}
+			,#{subScrnNo, 			jdbcType=VARCHAR}
+			,#{dsrbCd, 				jdbcType=VARCHAR}
+			,#{dsrbNm, 				jdbcType=VARCHAR}
+			,#{hndrNo, 				jdbcType=VARCHAR}
+			,#{hndrNm, 				jdbcType=VARCHAR}
+			,#{regTime, 			jdbcType=TIMESTAMP}
+			,#{prcsTycd, 			jdbcType=VARCHAR}
+			,#{trmnNo, 				jdbcType=VARCHAR}
+			,#{mainKey,				jdbcType=VARCHAR}
+			,#{taskKey,				jdbcType=VARCHAR}
+			,#{customerName,		jdbcType=VARCHAR}
+			,#{insourceId,			jdbcType=VARCHAR}
+			,#{insourceTitle,		jdbcType=VARCHAR}
+			,#{memo, 				jdbcType=VARCHAR}
+		)
+		
+	</insert>
+	
+	<update id="insertOrUpdate" parameterType="edocGrpBzwkInfoDto">
+		MERGE INTO 	EDS_ELEC_DOC_GROUP_BZWK_INFO
+		USING 		DUAL
+		ON			(ELEC_DOC_GROUP_INEX_NO = #{elecDocGroupInexNo})
+		WHEN MATCHED THEN 
+		UPDATE
+		<set>
+				<if test="scnNo != null and scnNo != ''">
+					SCN_NO 			= #{scnNo}
+				</if>
+				<if test="subScrnNo != null and subScrnNo != ''">
+					,SUB_SCRN_NO 	= #{subScrnNo}
+				</if>
+				<if test="dsrbCd != null and dsrbCd != ''">
+					,DSRB_CD 		= #{dsrbCd}
+				</if>
+				<if test="dsrbNm != null and dsrbNm != ''">
+					,DSRB_NM 		= #{dsrbNm}
+				</if>
+				<if test="hndrNo != null and hndrNo != ''">
+					,HNDR_NO 		= #{hndrNo}
+				</if>
+				<if test="hndrNm != null and hndrNm != ''">
+					,HNDR_NM 		= #{hndrNm}
+				</if>
+				<if test="regTime != null">
+					,REG_TIME 		= #{regTime}
+				</if>
+				<if test="prcsTycd != null and prcsTycd != ''">
+					,PRCS_TYCD 		= #{prcsTycd}
+				</if>
+				<if test="trmnNo != null and trmnNo != ''">
+					,TRMN_NO 		= #{trmnNo}
+				</if>
+				<if test="mainKey != null and mainKey != ''">
+					,MAIN_KEY		= #{mainKey}
+				</if>
+				<if test="taskKey != null and taskKey != ''">
+					,TASK_KEY 		= #{taskKey}
+				</if>
+				<if test="customerName != null and customerName != ''">
+					,CUSTOMER_NAME 	= #{customerName}	
+				</if>
+				<if test="insourceId != null and insourceId != ''">
+					,INSOURCE_ID 	= #{insourceId}
+				</if>
+				<if test="insourceTitle != null and insourceTitle != ''">
+					,INSOURCE_TITLE = #{insourceTitle}
+				</if>
+				<if test="memo != null and memo != ''">
+					,MEMO 			= #{memo}
+				</if>
+				<choose>
+					<when test="mappingKey != null and mappingKey != ''">
+						,MPNG_KEY = #{mappingKey,			jdbcType=VARCHAR}
+					</when>
+					<otherwise>
+						,MPNG_KEY = 'NOMAP'
+					</otherwise>
+				</choose>
+				
+		</set>
+		WHEN NOT MATCHED THEN
+		INSERT 
+		(
+			<include refid="edoc_bzwk_column_list" />
+		)
+		VALUES
+		(
+			#{elecDocGroupInexNo, 	jdbcType=VARCHAR}
+			<choose>
+				<when test="mappingKey != null and mappingKey != ''">
+					,#{mappingKey,			jdbcType=VARCHAR}
+				</when>
+				<otherwise>
+					,'NOMAP'
+				</otherwise>
+			</choose>
+			,#{scnNo, 				jdbcType=VARCHAR}
+			,#{subScrnNo, 			jdbcType=VARCHAR}
+			,#{dsrbCd, 				jdbcType=VARCHAR}
+			,#{dsrbNm, 				jdbcType=VARCHAR}
+			,#{hndrNo, 				jdbcType=VARCHAR}
+			,#{hndrNm, 				jdbcType=VARCHAR}
+			,#{regTime, 			jdbcType=TIMESTAMP}
+			,#{prcsTycd, 			jdbcType=VARCHAR}
+			,#{trmnNo, 				jdbcType=VARCHAR}
+			,#{mainKey,				jdbcType=VARCHAR}
+			,#{taskKey,				jdbcType=VARCHAR}
+			,#{customerName,		jdbcType=VARCHAR}
+			,#{insourceId,			jdbcType=VARCHAR}
+			,#{insourceTitle,		jdbcType=VARCHAR}
+			,#{memo, 				jdbcType=VARCHAR}
+		)
+	</update>
+
+	<select id="select" parameterType="edocGrpBzwkInfoDto" resultMap="edocBzwkInfoMap">
+		SELECT 	
+				<include refid="edoc_bzwk_column_list" />
+ 		FROM 	
+ 				EDS_ELEC_DOC_GROUP_BZWK_INFO
+ 		WHERE
+ 				ELEC_DOC_GROUP_INEX_NO 			= #{elecDocGroupInexNo}
+ 		AND 
+ 				MAIN_KEY						= #{mainKey}
+	</select>
+
+	
+	<delete id="deleteProcsMgmtData" parameterType="edocGrpProcsMgmtDto">
+		DELETE FROM EDS_ELEC_DOC_GROUP_BZWK_INFO a
+		WHERE  EXISTS
+		(
+			SELECT 	1 
+			FROM 	EDS_ELEC_DOC_GROUP_PROCS_MGMT b
+			WHERE 	a.ELEC_DOC_GROUP_INEX_NO = b.ELEC_DOC_GROUP_INEX_NO
+			AND		b.PROCS_STEP_CD					= '00'
+			AND 	b.PROCS_STEP_STCD				= '0'
+			AND		b.PROCS_STEP_ED_TIME	<![CDATA[<]]> #{procsStepEdTime, jdbcType=TIMESTAMP}
+		)
+	</delete>
+	
+	<delete id="deleteTmpMgmtData" parameterType="java.util.List">
+		DELETE FROM EDS_ELEC_DOC_GROUP_BZWK_INFO a
+		WHERE  EXISTS
+		(
+			SELECT 	1 
+			FROM 	EDS_ELEC_DOC_GROUP_PROCS_MGMT b
+			WHERE 	a.ELEC_DOC_GROUP_INEX_NO = b.ELEC_DOC_GROUP_INEX_NO
+			AND		PROCS_STEP_CD				= '00'
+			AND 	PROCS_STEP_STCD				= '1'
+			AND 	ELEC_DOC_GROUP_INEX_NO			
+			IN
+				<foreach collection="list" item="tmpStrgVo" open="(" close=")" separator=", ">
+					#{tmpStrgVo.elecDocGroupInexNo}
+				</foreach>
+		)
+	</delete>
+</mapper>
+

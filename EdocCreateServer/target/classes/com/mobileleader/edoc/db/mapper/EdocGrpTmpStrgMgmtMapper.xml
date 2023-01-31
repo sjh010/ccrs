@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mobileleader.edoc.db.mapper.EdocGrpTmpStrgMgmtMapper">
+	
+ 	<resultMap id="tmpStrgMgmtMap" type="com.mobileleader.edoc.db.dto.EdocGrpTmpStrgMgmtDto">
+ 		<id column="ELEC_DOC_GROUP_INEX_NO" 	property="elecDocGroupInexNo" 	jdbcType="VARCHAR" />
+		<result column="MPNG_KEY" 				property="mappingKey" 			jdbcType="VARCHAR" />
+		<result column="SVR_FILE" 				property="svrFile" 				jdbcType="VARCHAR" />
+		<result column="LAST_TMP_STRG_TIME" 	property="lastTmpStrgTime" 		jdbcType="TIMESTAMP" />
+		<result column="TMP_STRG_TYCD" 			property="tmpStrgTycd" 			jdbcType="VARCHAR" />
+		<result column="TMP_MEMO" 				property="tmpMemo" 				jdbcType="VARCHAR" />
+		<result column="SCN_NO" 				property="scnNo" 				jdbcType="VARCHAR" />
+		<result column="SUB_SCN_NO" 			property="subScrnNo" 			jdbcType="VARCHAR" />
+		<result column="DSRB_CD" 				property="dsrbCd" 				jdbcType="VARCHAR" />
+		<result column="DSRB_NM" 				property="dsrbNm" 				jdbcType="VARCHAR" />
+		<result column="HNDR_NO" 				property="hndrNo" 				jdbcType="VARCHAR" />
+		<result column="HNDR_NM" 				property="hndrNm" 				jdbcType="VARCHAR" />
+		<result column="TRMN_NO" 				property="trmnNo" 				jdbcType="VARCHAR" />
+		<result column="PRCS_TYCD" 				property="prcsTycd" 			jdbcType="VARCHAR" />
+		<result column="REG_TIME" 				property="regTime" 				jdbcType="TIMESTAMP" />
+		<result column="MAIN_KEY" 				property="mainKey" 				jdbcType="VARCHAR" />
+		<result column="TASK_KEY" 				property="taskKey" 				jdbcType="VARCHAR" />
+		<result column="CUSTOMER_NAME" 			property="customerName" 		jdbcType="VARCHAR" />
+		<result column="INSOURCE_ID" 			property="insourceId" 			jdbcType="VARCHAR" />
+		<result column="INSOURCE_TITLE" 		property="insourceTitle" 		jdbcType="VARCHAR" />
+		<result column="MEMO" 					property="memo" 				jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="base_column_list">
+		ELEC_DOC_GROUP_INEX_NO
+		,MPNG_KEY
+		,LAST_TMP_STRG_TIME
+		,SVR_FILE
+		,TMP_STRG_TYCD
+		,TMP_MEMO
+	</sql>
+	
+	<sql id="edoc_bzwk_column_list">
+		SCN_NO
+		,SUB_SCRN_NO
+		,DSRB_CD
+		,DSRB_NM
+		,HNDR_NO
+		,HNDR_NM
+		,REG_TIME
+		,PRCS_TYCD
+		,TRMN_NO
+		,MAIN_KEY
+		,TASK_KEY
+		,CUSTOMER_NAME
+		,INSOURCE_ID
+		,INSOURCE_TITLE
+		,MEMO
+	</sql>
+	
+	<update id="insertOrUpdate" parameterType="edocGrpTmpStrgMgmtDto">
+		MERGE INTO	EDS_ELEC_DOC_GROUP_TMP_STRG_MGMT
+		USING 		DUAL
+		ON
+		(
+			ELEC_DOC_GROUP_INEX_NO 	= #{elecDocGroupInexNo} 
+			AND MPNG_KEY 			=		
+			<choose>
+				<when test="mappingKey != null and mappingKey != ''">
+					#{mappingKey,			jdbcType=VARCHAR}
+				</when>
+				<otherwise>
+					'NOMAP'
+				</otherwise>
+			</choose>
+		)
+		WHEN MATCHED THEN 
+		UPDATE SET	
+			LAST_TMP_STRG_TIME     		= SYSTIMESTAMP
+			<if test="svrFile != null and svrFile != ''">
+				,SVR_FILE               = #{svrFile}
+			</if>
+			<if test="tmpMemo != null and tmpMemo != ''">
+				,TMP_MEMO               = #{tmpMemo} 
+			</if>
+			<if test="tmpStrgTycd != null and tmpStrgTycd != ''">
+				,TMP_STRG_TYCD          = #{tmpStrgTycd} 
+			</if>
+		WHEN NOT MATCHED THEN
+		INSERT 
+		(
+			<include refid="base_column_list" />
+		)
+		VALUES
+		(
+			#{elecDocGroupInexNo, 	jdbcType=VARCHAR}
+			<choose>
+				<when test="mappingKey != null and mappingKey != ''">
+					,#{mappingKey,			jdbcType=VARCHAR}
+				</when>
+				<otherwise>
+					,'NOMAP'
+				</otherwise>
+			</choose>
+			,SYSTIMESTAMP
+			,#{svrFile, 			jdbcType=VARCHAR}
+			,#{tmpStrgTycd, 		jdbcType=VARCHAR}
+			,#{tmpMemo, 			jdbcType=VARCHAR}
+		)
+	</update>
+	
+ 	<select id="selectByPk" parameterType="hashmap" resultMap="tmpStrgMgmtMap">
+		SELECT 	
+				<include refid="base_column_list" />
+				<!-- ,<include refid="edoc_bzwk_column_list" /> -->
+		FROM 	
+				EDS_ELEC_DOC_GROUP_TMP_STRG_MGMT
+		INNER JOIN
+				EDS_ELEC_DOC_GROUP_BZWK_INFO
+		USING 
+		(
+			ELEC_DOC_GROUP_INEX_NO, MPNG_KEY
+		)
+		WHERE
+				ELEC_DOC_GROUP_INEX_NO 		= #{edocGrpIdxNo}
+		AND 
+				MPNG_KEY =
+				<choose>
+					<when test="mappingKey != null and mappingKey != ''">
+						#{mappingKey}
+					</when>
+					<otherwise>
+						'NOMAP'
+					</otherwise>
+				</choose>         		
+	</select>
+	
+	<select id="selectList" parameterType="edocGrpTmpStrgMgmtDto" resultMap="tmpStrgMgmtMap">
+		SELECT  
+				<include refid="base_column_list" />
+				,<include refid="edoc_bzwk_column_list" />
+		FROM 	
+				EDS_ELEC_DOC_GROUP_TMP_STRG_MGMT
+		INNER JOIN
+		(				
+			SELECT
+					<include refid="edoc_bzwk_column_list" />
+					,ELEC_DOC_GROUP_INEX_NO, MPNG_KEY
+			FROM 
+					EDS_ELEC_DOC_GROUP_BZWK_INFO
+			INNER JOIN
+					EDS_ELEC_DOC_GROUP_PROCS_MGMT
+			USING (ELEC_DOC_GROUP_INEX_NO)
+			WHERE
+					PROCS_STEP_CD				= '00'
+					AND PROCS_STEP_STCD 		= '1'
+		)
+		USING (ELEC_DOC_GROUP_INEX_NO, MPNG_KEY)
+		<where>
+			DSRB_CD                		= #{dsrbCd}
+		AND HNDR_NO                	= #{hndrNo}
+			<if test="elecDocGroupInexNo != null and elecDocGroupInexNo != ''">
+				AND ELEC_DOC_GROUP_INEX_NO = #{elecDocGroupInexNo}
+			</if>
+			<if test="regTime != null">
+				AND REG_TIME 			<![CDATA[>=]]> #{regTime}
+			</if>
+			<if test="dsrbNm != null and dsrbNm != ''">
+				AND DSRB_NM                = #{dsrbNm}
+			</if>
+			<if test="hndrNm != null and hndrNm != ''">
+				AND HNDR_NM                = #{hndrNm}
+			</if>
+			<if test="mainKey != null and mainKey != ''">
+				AND MAIN_KEY				= #{mainKey}
+			</if>
+			<if test="taskKey != null and taskKey != ''">
+				AND TASK_KEY 				= #{taskKey}
+			</if>
+			<if test="insourceId != null and insourceId != ''">
+				AND INSOURCE_ID 			= #{insourceId}
+			</if>
+			<if test="insourceTitle != null and insourceTitle != ''">
+				AND INSOURCE_TITLE 			= #{insourceTitle}
+			</if>
+			<if test="customerName != null and customerName != ''">
+				AND CUSTOMER_NAME 			= #{customerName}	
+			</if>
+			<if test="prcsTycd != null and prcsTycd != ''">
+				AND PRCS_TYCD              = #{prcsTycd}
+			</if>
+		</where>
+	</select>
+	
+<!-- 	<select id="selectList" parameterType="edocGrpTmpStrgMgmtDto" resultMap="tmpStrgMgmtMap">
+		SELECT  <include refid="base_column_list" />
+		FROM 
+			(
+				SELECT 
+						ROW_NUMBER() 
+						OVER 
+						(
+							PARTITION BY 	ELEC_DOC_GROUP_INEX_NO 
+							ORDER BY 		LAST_TMP_STRG_TIME DESC
+						) RN,		동일한 전자문서키를 가진 데이터에 최신임시저장시각순으로 번호 매겨줌 
+						<include refid="base_column_list" />
+				FROM 	
+						EDS_ELEC_DOC_GROUP_TMP_STRG_MGMT
+			) A
+		INNER JOIN 
+				EDS_ELEC_DOC_GROUP_PROCS_MGMT B
+		USING 
+		(
+				ELEC_DOC_GROUP_INEX_NO
+		)
+		WHERE 
+				RN							= 1	가장 최근에 저장한 문서 가져옴
+				AND PROCS_STEP_CD			= '00'
+				AND PROCS_STEP_STCD 		= '1'
+			<if test="elecDocGroupInexNo != null and elecDocGroupInexNo != ''">
+				AND ELEC_DOC_GROUP_INEX_NO = #{elecDocGroupInexNo}
+			</if>
+			<if test="lastTmpStrgTime != null">
+				AND LAST_TMP_STRG_TIME   <![CDATA[>=]]> #{lastTmpStrgTime}
+			</if>  	
+			<if test="dsrbCd != null and dsrbCd != ''">
+				AND DSRB_CD                = #{dsrbCd}
+			</if>
+			<if test="dsrbNm != null and dsrbNm != ''">
+				AND DSRB_NM                = #{dsrbNm}
+			</if>
+			<if test="hndrNo != null and hndrNo != ''">
+				AND HNDR_NO                = #{hndrNo}
+			</if>
+			<if test="hndrNm != null and hndrNm != ''">
+				AND HNDR_NM                = #{hndrNm}
+			</if>
+			<if test="cstNo != null and cstNo != ''">
+				AND CSTNO                  = #{cstNo}
+			</if>
+			<if test="custNm != null and custNm != ''">
+				AND CUST_NM             LIKE #{custNm}
+			</if>
+			<if test="prcsTycd != null and prcsTycd != ''">
+				AND PRCS_TYCD              = #{prcsTycd}
+			</if>
+			<if test="mappingKey != null and mappingKey != ''">
+				AND MPNG_KEY               = #{mappingKey}
+			</if>
+			<if test="trmnNo != null and trmnNo != ''">
+				AND TRMN_NO                = #{trmnNo}
+			</if>
+	</select> -->
+	
+	<select id="selectDelList" parameterType="java.util.Date" resultMap="tmpStrgMgmtMap">
+		SELECT	
+				<include refid="base_column_list" />
+		FROM 
+				EDS_ELEC_DOC_GROUP_TMP_STRG_MGMT
+		WHERE	LAST_TMP_STRG_TIME <![CDATA[<]]> #{delTime, jdbcType=TIMESTAMP}
+		ORDER BY LAST_TMP_STRG_TIME
+	</select>
+	
+	<delete id="deleteAll" parameterType="java.util.List">
+		<foreach collection="list" item="tmpStrgMgmtVo" open="DECLARE BEGIN" close="; END; " separator=";">
+			DELETE
+			FROM 		EDS_ELEC_DOC_GROUP_TMP_STRG_MGMT
+			WHERE		ELEC_DOC_GROUP_INEX_NO	= #{tmpStrgMgmtVo.elecDocGroupInexNo}
+			AND 		MPNG_KEY               	= #{tmpStrgMgmtVo.mappingKey}
+		</foreach>
+	</delete>
+	
+</mapper>

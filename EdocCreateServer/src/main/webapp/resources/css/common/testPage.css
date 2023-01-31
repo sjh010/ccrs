@@ -1,0 +1,41 @@
+*{margin : 0;}
+
+input[type="text"], th, td, .table, .btn{font-size : 12px;}
+
+.container{
+	min-width : 960px; width : 960px;
+	margin-left : 5%;
+}
+.title{margin-top : 1.5rem; margin-bottom : 1.5rem;}
+
+th{
+	text-align : center; vertical-align : middle; width : 90px;
+	background-color : rgb(230,233,236); 
+}
+.table{border-top : 2px solid rgb(43,83,168);}
+.table-header .btn{margin-bottom : 5px;}
+.table-header{padding-left : 5px; color : grey;}
+.table-content{margin-bottom : 1rem;}
+
+.input-group-btn{margin-left : 5px;}
+.btn-default{
+	background-color : white; color : rgb(43,83,168);
+	border : 1px solid rgb(43,83,168);
+}
+.btn-default:active{
+	background-color : rgb(220, 228, 245);
+}
+.btn-info{
+	background-color : rgb(43,83,168); color : white;
+	border : 1px solid rgb(43,83,168); 
+}
+.btn-large{
+	font-size : 15px; padding : 15px;
+}
+.btn-right{display : inline-block; float : right;}
+
+.align-center{text-align: center;}
+.invisible{
+	position : absolute; width : 0px; height : 0px;
+	padding : 0; margin : -3px; overflow : hidden; clip : rect(0,0,0,0); border : 0;
+}

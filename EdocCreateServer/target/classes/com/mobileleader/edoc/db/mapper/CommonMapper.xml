@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mobileleader.edoc.db.mapper.CommonMapper">
+
+	<select id="getNextSeqNo" resultType="String">
+		SELECT EDOCGRP_IDX_NO_SEQ.NEXTVAL AS nextSeqNo FROM DUAL
+	</select>
+
+</mapper>
