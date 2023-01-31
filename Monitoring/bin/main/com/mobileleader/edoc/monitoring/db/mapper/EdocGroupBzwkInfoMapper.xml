@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mobileleader.edoc.monitoring.db.mapper.EdocGroupBzwkInfoMapper">
+	
+    <!-- 
+        added query for dashboard by asyu (2019-05-30) 
+        Top5 usage by branch 
+    -->
+    <resultMap id="dashboardBranchResultMap" type="com.mobileleader.edoc.monitoring.db.dto.dashboard.DashboardBranchDto">
+        <result column="BRANCH_NAME" property="branchName" jdbcType="VARCHAR" />
+        <result column="TOTAL_COUNT" property="totalCount" jdbcType="INTEGER" />
+        <result column="COMPLETE_COUNT" property="completeCount" jdbcType="INTEGER" />
+        <result column="PROCESSING_COUNT" property="processingCount" jdbcType="INTEGER" />
+        <result column="ERROR_COUNT" property="errorCount" jdbcType="INTEGER" />
+        <result column="RANK" property="rank" jdbcType="INTEGER" />
+    </resultMap>
+    
+    <select id="selectDashboardUsageTop5BranchesForMonthly" resultMap="dashboardBranchResultMap" parameterType="java.lang.String">
+        SELECT BRANCH_NAME,
+               TOTAL_COUNT,
+               PROCESSING_COUNT,
+               COMPLETE_COUNT,
+               ERROR_COUNT,
+               RANK
+        FROM(
+            SELECT wrap.DSRB_NM AS BRANCH_NAME,
+                   COUNT(wrap.DSRB_CD) AS TOTAL_COUNT, 
+                   NVL(SUM(CASE WHEN wrap.PROCS_STEP_STCD = '0' THEN 1 ELSE 0 END), 0) AS PROCESSING_COUNT, 
+                   NVL(SUM(CASE WHEN wrap.PROCS_STEP_STCD = '1' THEN 1 ELSE 0 END), 0) AS COMPLETE_COUNT, 
+                   NVL(SUM(CASE WHEN wrap.PROCS_STEP_STCD = '9' THEN 1 ELSE 0 END), 0) AS ERROR_COUNT,
+                   RANK() OVER (ORDER BY COUNT(wrap.DSRB_CD) DESC, wrap.DSRB_NM ASC) AS RANK
+            FROM (
+                SELECT biz.ELEC_DOC_GROUP_INEX_NO, biz.DSRB_CD, biz.DSRB_NM, biz.REG_TIME, process.PROCS_STEP_STCD 
+                FROM EDS_ELEC_DOC_GROUP_BZWK_INFO biz
+                INNER JOIN EDS_ELEC_DOC_GROUP_PROCS_MGMT process
+                ON biz.ELEC_DOC_GROUP_INEX_NO = process.ELEC_DOC_GROUP_INEX_NO
+                WHERE TO_CHAR(biz.REG_TIME, 'YYYY.MM') = #{searchYearMonth, jdbcType=VARCHAR}
+                
+            ) wrap
+            GROUP BY wrap.DSRB_CD, wrap.DSRB_NM
+        ) total
+        WHERE total.RANK <![CDATA[ <= ]]> 5
+    </select>
+    
+    <select id="selectDashboardUsageTop5BranchesForDaily" resultMap="dashboardBranchResultMap" parameterType="java.lang.String">
+        SELECT BRANCH_NAME,
+               TOTAL_COUNT,
+               PROCESSING_COUNT,
+               COMPLETE_COUNT,
+               ERROR_COUNT,
+               RANK
+        FROM(
+            SELECT wrap.DSRB_NM AS BRANCH_NAME,
+                   COUNT(wrap.DSRB_CD) AS TOTAL_COUNT, 
+                   NVL(SUM(CASE WHEN wrap.PROCS_STEP_STCD = '0' THEN 1 ELSE 0 END), 0) AS PROCESSING_COUNT, 
+                   NVL(SUM(CASE WHEN wrap.PROCS_STEP_STCD = '1' THEN 1 ELSE 0 END), 0) AS COMPLETE_COUNT, 
+                   NVL(SUM(CASE WHEN wrap.PROCS_STEP_STCD = '9' THEN 1 ELSE 0 END), 0) AS ERROR_COUNT,
+                   RANK() OVER (ORDER BY COUNT(wrap.DSRB_CD) DESC, wrap.DSRB_NM ASC) AS RANK
+            FROM (
+                SELECT biz.ELEC_DOC_GROUP_INEX_NO, biz.DSRB_CD, biz.DSRB_NM, biz.REG_TIME, process.PROCS_STEP_STCD 
+                FROM EDS_ELEC_DOC_GROUP_BZWK_INFO biz
+                INNER JOIN EDS_ELEC_DOC_GROUP_PROCS_MGMT process
+                ON biz.ELEC_DOC_GROUP_INEX_NO = process.ELEC_DOC_GROUP_INEX_NO
+                WHERE TO_CHAR(biz.REG_TIME, 'YYYY.MM.DD') = #{searchYearMonth, jdbcType=VARCHAR}
+            ) wrap
+            GROUP BY wrap.DSRB_CD, wrap.DSRB_NM
+        ) total
+        WHERE total.RANK <![CDATA[ <= ]]> 5
+    </select>
+    
+</mapper>
