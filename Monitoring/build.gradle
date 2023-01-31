@@ -1,0 +1,126 @@
+apply plugin : 'java'
+apply plugin : 'war'
+apply plugin : 'eclipse-wtp'
+
+group = 'com.mobileleader'
+project.webAppDirName = 'src/main/webapp'
+version = '1.0.1'
+
+description = "ccrs-edoc-monitoring"
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+repositories {
+    flatDir { dirs "src/main/webapp/WEB-INF/lib" }
+}
+
+/*
+ext {
+    springVersion = '4.3.23.RELEASE'
+    springSecurityVersion = '4.2.12.RELEASE'
+    servletVersion = '3.1.0'
+    jspVersion = '2.3.0'
+    jstlVersion = '1.2'
+    mybatisVersion = '3.4.1'
+    mybatisSpringVersion = '1.3.0'
+    ojdbcVersion = '12.1.0.1'
+    poiVersion = '3.10.1'
+    logbackVersion = '1.2.3'
+    logbackextVersion = '0.1.4'
+    slf4jVersion = '1.7.21'
+    junitVersion = '4.12'
+    assertJVersion = '2.9.1'
+    webformVersion = '1.4.3'
+    hikariCpVersion = '2.4.13'
+    gsonVersion = '2.8.5'
+}
+
+dependencies {
+    // spring
+    compile "org.springframework:spring-aspects:${springVersion}"
+    compile "org.springframework:spring-context:${springVersion}"
+    compile "org.springframework:spring-context-support:${springVersion}"
+    compile "org.springframework:spring-webmvc:${springVersion}"
+    compile "org.springframework:spring-jdbc:${springVersion}"
+    // spring securiry
+    compile "org.springframework.security:spring-security-web:${springSecurityVersion}"
+    compile "org.springframework.security:spring-security-config:${springSecurityVersion}"
+    compile "org.springframework.security:spring-security-taglibs:${springSecurityVersion}"
+    // mybatis, db
+    compile "org.mybatis:mybatis:${mybatisVersion}"
+    compile "org.mybatis:mybatis-spring:${mybatisSpringVersion}"
+    compile "com.oracle:ojdbc6:${ojdbcVersion}"
+    compile "com.zaxxer:HikariCP-java7:${hikariCpVersion}"
+    
+    // validate
+    compile "org.hibernate:hibernate-validator:5.4.3.Final"
+    
+    // json
+    compile "com.google.code.gson:gson:${gsonVersion}"
+    
+    // poi(excel)
+    compile "org.apache.poi:poi:${poiVersion}"
+    compile "org.apache.poi:poi-ooxml:${poiVersion}"
+
+    // log
+    compile "org.slf4j:slf4j-api:1.7.25"
+    compile "org.slf4j:slf4j-log4j12:${slf4jVersion}"
+    compile "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
+    compile "org.slf4j:log4j-over-slf4j:${slf4jVersion}"
+    compile "ch.qos.logback:logback-classic:${logbackVersion}"
+    compile "ch.qos.logback:logback-core:${logbackVersion}"
+    compile "ch.qos.logback:logback-access:${logbackVersion}"
+    compile "org.logback-extensions:logback-ext-spring:${logbackextVersion}"
+
+    // etc    
+    compile "com.squareup.okhttp3:okhttp:3.3.0"
+    compile "org.apache.commons:commons-compress:1.8"
+    compile "javax.servlet:jstl:${jstlVersion}"
+    compile 'org.codehaus.groovy:groovy-all:2.4.4'
+    compileOnly "org.projectlombok:lombok:1.18.2"
+
+    // WAS Dependency
+    providedCompile "javax.servlet:javax.servlet-api:${servletVersion}"
+    providedCompile "javax.servlet.jsp:javax.servlet.jsp-api:${jspVersion}"
+    
+    // webform viewer
+    compile "com.mobileleader:webform-engine:${webformVersion}"
+    compile "com.mobileleader:webform-common:${webformVersion}"
+    compile "com.mobileleader:eform.svgpack:1.1.1"
+    
+    // test
+    testCompile "junit:junit:${junitVersion}"
+    testCompile "org.assertj:assertj-core:${assertJVersion}"
+    testCompile "org.hamcrest:hamcrest-library:1.3"
+    testCompile "org.mockito:mockito-core:2.24.0"
+    testCompile "com.jayway.jsonpath:json-path:2.2.0"
+    testCompile "org.glassfish:javax.el:3.0.0"
+    testCompile "org.springframework:spring-test:${springVersion}"
+}
+*/
+dependencies {
+    compile fileTree(dir: 'src/main/webapp/WEB-INF/lib', include: '*.jar')
+}
+
+// commons-logging, log4j, jul 의존성 제거
+configurations {
+    all.collect { configuration ->
+        configuration.exclude group: 'commons-logging', module: 'commons-logging'
+        configuration.exclude group: 'log4j', module: 'log4j'
+        configuration.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+        configuration.exclude group: 'org.slf4j', module: 'slf4j-jcl'
+        configuration.exclude group: 'org.slf4j', module: 'slf4j-jdk14'
+    }
+}
+
+// compile encoding
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+// task
+war {
+    from('src/main/java/com/mobileleader/edoc/monitoring/db/mapper') {
+        include '*.xml'
+        into('WEB-INF/classes/com/mobileleader/edoc/monitoring/db/mapper')
+    }
+}

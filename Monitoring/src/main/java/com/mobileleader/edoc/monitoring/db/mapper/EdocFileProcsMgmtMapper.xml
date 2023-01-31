@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mobileleader.edoc.monitoring.db.mapper.EdocFileProcsMgmtMapper">	
+	<resultMap id="BaseResultMap" type="com.mobileleader.edoc.monitoring.db.dto.EdocFileProcsMgmtDto">
+		<id column="ELEC_DOC_GROUP_INEX_NO" property="elecDocGroupInexNo" jdbcType="VARCHAR" />
+		<id column="FILE_SEQ_NO" property="fileSeqNo" jdbcType="INTEGER" />
+		<result column="LEFRM_CD" property="lefrmCd" jdbcType="VARCHAR" />
+		<result column="LEFRM_NM" property="lefrmNm" jdbcType="VARCHAR" />
+		<result column="XML_FILE_NM" property="xmlFileNm" jdbcType="VARCHAR" />
+		<result column="PDF_FILE_NM" property="pdfFileNm" jdbcType="VARCHAR" />
+		<result column="PAGE_CNT" property="pageCnt" jdbcType="INTEGER" />
+		<result column="PROCS_STEP_CD" property="procsStepCd" jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_STCD" property="procsStepStcd" jdbcType="VARCHAR" />
+		<result column="SIGN_FILE_NM" property="signFileNm" jdbcType="VARCHAR" />
+		<result column="SEAL_FILE_NM" property="sealFileNm" jdbcType="VARCHAR" />
+		<result column="CRTN_TIME" property="crtnTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		ELEC_DOC_GROUP_INEX_NO, FILE_SEQ_NO, LEFRM_CD, LEFRM_NM, XML_FILE_NM, PDF_FILE_NM, PAGE_CNT, 
+		PROCS_STEP_CD, PROCS_STEP_STCD, SIGN_FILE_NM, SEAL_FILE_NM, CRTN_TIME
+	</sql>
+	
+	<select id="count" parameterType="com.mobileleader.edoc.monitoring.common.form.EdocProcListForm" resultType="java.lang.Integer">
+		SELECT 
+			COUNT(*)
+  		FROM 
+  			EDS_ELEC_DOC_FILE_PROCS_MGMT
+  		WHERE
+			ELEC_DOC_GROUP_INEX_NO = #{elecDocGroupInexNo, jdbcType=VARCHAR}
+	</select>
+	
+	<select id="selectAll" parameterType="com.mobileleader.edoc.monitoring.common.form.EdocProcListForm" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+  		FROM 
+  			EDS_ELEC_DOC_FILE_PROCS_MGMT
+  		WHERE
+			ELEC_DOC_GROUP_INEX_NO = #{elecDocGroupInexNo, jdbcType=VARCHAR}
+		ORDER BY 
+			FILE_SEQ_NO ASC			
+	</select>
+	
+	<select id="select" parameterType="HashMap" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+  		FROM 
+  			EDS_ELEC_DOC_FILE_PROCS_MGMT
+  		WHERE
+			ELEC_DOC_GROUP_INEX_NO = #{elecDocGroupInexNo, jdbcType=VARCHAR}
+			AND FILE_SEQ_NO = #{fileSeqNo, jdbcType=INTEGER}
+	</select>
+</mapper>

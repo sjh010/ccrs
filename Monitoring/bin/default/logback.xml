@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<!-- configuration file for LogBack (slf4J implementation) See here for more 
+	details: http://gordondickens.com/wordpress/2013/03/27/sawing-through-the-java-loggers/ -->
+	<configuration scan="true" scanPeriod="30 seconds">
+	<property name="LOG_DIR" value="/pprlog/devppr/eds/was" />
+	
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>[%d] [%thread] %-5level %logger{36} - %replace(%msg){'[\r\n]', ''}%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- edoc -->
+	<appender name="fileAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIR}/edoc.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${LOG_DIR}/edoc.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>[%d] [%thread] %-5level %logger{36} - %replace(%msg){'[\r\n]', ''}%n</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- others -->
+	<appender name="othersAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIR}/others.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${LOG_DIR}/others.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>[%d] [%thread] %-5level %logger{36} - %replace(%msg){'[\r\n]', ''}%n</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- DB -->
+	<appender name="dbAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIR}/db.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/db-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+	    		<maxFileSize>10MB</maxFileSize>
+	   		</timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M\(%line\) - %replace(%msg){'[\r\n]', ''}%n</pattern>
+        </encoder>
+	</appender>
+	
+	<!-- 스케줄 -->
+	<appender name="scheduleAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIR}/schedule.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/schedule-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+	    		<maxFileSize>10MB</maxFileSize>
+	   		</timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M\(%line\) - %replace(%msg){'[\r\n]', ''}%n</pattern>
+        </encoder>
+	</appender>
+	
+	<logger name="org.springframework" level="info" additivity="false">
+		<appender-ref ref="othersAppender" />
+	</logger>
+	
+	<logger name="org.apache.ibatis" level="debug" additivity="false">
+		<appender-ref ref="dbAppender" />
+	</logger>
+	<logger name="org.mybatis" level="debug" additivity="false">
+		<appender-ref ref="dbAppender" />
+	</logger>
+	<logger name="com.mobileleader.edoc.monitoring.db" level="debug" additivity="false">
+		<appender-ref ref="dbAppender" />
+	</logger>
+	
+	<logger name="com.mobileleader.edoc.monitoring.service.schedule" level="debug" additivity="false">
+		<appender-ref ref="scheduleAppender" />
+	</logger>
+	
+	<root level="debug">
+		<appender-ref ref="fileAppender" />
+		<appender-ref ref="dbAppender" />
+		<appender-ref ref="scheduleAppender" />
+		<appender-ref ref="console" />
+	</root>
+</configuration>

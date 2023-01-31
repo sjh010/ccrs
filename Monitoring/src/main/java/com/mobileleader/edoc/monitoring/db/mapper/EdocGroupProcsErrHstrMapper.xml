@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mobileleader.edoc.monitoring.db.mapper.EdocGroupProcsErrHstrMapper">	
+	<resultMap id="BaseResultMap" type="com.mobileleader.edoc.monitoring.db.dto.EdocGroupProcsErrHstrDto">
+		<id column="ELEC_DOC_GROUP_INEX_NO" property="elecDocGroupInexNo" jdbcType="VARCHAR" />
+		<id column="SEQNO" property="seqno" jdbcType="INTEGER" />
+	   	<result column="CRTN_TIME" property="crtnTime" jdbcType="TIMESTAMP" />
+		<result column="PROCS_STEP_CD" property="procsStepCd" jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_STCD" property="procsStepStcd" jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_MSG_CD" property="procsStepMsgCd" jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_ST_TIME" property="procsStepStTime" jdbcType="TIMESTAMP" />
+		<result column="PROCS_STEP_ED_TIME" property="procsStepEdTime" jdbcType="TIMESTAMP" />
+		<result column="ERR_MSG" property="errMsg" jdbcType="VARCHAR" />
+		<result column="SVR_IP" property="svrIp" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		ELEC_DOC_GROUP_INEX_NO, SEQNO, CRTN_TIME, PROCS_STEP_CD, PROCS_STEP_STCD, PROCS_STEP_MSG_CD, PROCS_STEP_ST_TIME, PROCS_STEP_ED_TIME, ERR_MSG, SVR_IP
+	</sql>
+	
+	<select id="count" parameterType="com.mobileleader.edoc.monitoring.common.form.EdocProcListForm" resultType="java.lang.Integer">
+		SELECT 
+			COUNT(*)
+  		FROM 
+  			EDS_ELEC_DOC_GROUP_PROCS_ERR_HSTR
+  		WHERE
+			ELEC_DOC_GROUP_INEX_NO = #{elecDocGroupInexNo, jdbcType=VARCHAR}
+	</select>
+	
+	<select id="selectAll" parameterType="com.mobileleader.edoc.monitoring.common.form.EdocProcListForm" resultMap="BaseResultMap">
+		SELECT 
+			*
+  		FROM 
+  			EDS_ELEC_DOC_GROUP_PROCS_ERR_HSTR
+  		WHERE
+			ELEC_DOC_GROUP_INEX_NO = #{elecDocGroupInexNo, jdbcType=VARCHAR}
+		ORDER BY 
+			SEQNO ASC			
+	</select>
+</mapper>

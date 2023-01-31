@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mobileleader.edoc.monitoring.db.mapper.EdocGroupProcsMgmtMapper">	
+	<resultMap id="BaseResultMap" type="com.mobileleader.edoc.monitoring.db.dto.EdocGroupProcsMgmtDto">
+		<id column="ELEC_DOC_GROUP_INEX_NO" property="elecDocGroupInexNo" jdbcType="VARCHAR" />
+		<result column="CRTN_TIME" property="crtnTime" jdbcType="TIMESTAMP" />
+		<result column="PROCS_STEP_CD" property="procsStepCd" jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_STCD" property="procsStepStcd" jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_MSG_CD" property="procsStepMsgCd" jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_ST_TIME" property="procsStepStTime" jdbcType="TIMESTAMP" />
+		<result column="PROCS_STEP_ED_TIME" property="procsStepEdTime" jdbcType="TIMESTAMP" />
+		<result column="SVR_IP" property="svrIp" jdbcType="VARCHAR" />
+		
+		<result column="SCN_NO" property="scnNo" jdbcType="VARCHAR" />
+		<result column="WORK_TYPE" property="workType" jdbcType="VARCHAR" />
+		
+		<result column="DSRB_CD" property="dsrbCd" jdbcType="VARCHAR" />
+		<result column="DSRB_NM" property="dsrbNm" jdbcType="VARCHAR" />
+		<result column="HNDR_NO" property="hndrNo" jdbcType="VARCHAR" />
+		<result column="HNDR_NM" property="hndrNm" jdbcType="VARCHAR" />
+		<result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+		<result column="PRCS_TYCD" property="prcsTycd" jdbcType="VARCHAR" />
+		
+		<!-- 신복위 추가 -->
+		<result column="MAIN_KEY" property="mainKey" jdbcType="VARCHAR" />
+		<result column="TASK_KEY" property="taskKey" jdbcType="VARCHAR" />
+		<result column="INSOURCE_ID" property="insourceId" jdbcType="VARCHAR" />
+		<result column="INSOURCE_TITLE" property="insourceTitle" jdbcType="VARCHAR" />
+		<result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR" />
+		<result column="MEMO" property="memo" jdbcType="VARCHAR" />
+		<!--        -->
+	</resultMap>
+	
+	<resultMap id="AggrResultMap" type="com.mobileleader.edoc.monitoring.db.dto.EdocGroupProcsMgmtAggrDto">
+		<result column="PROCS_STEP_CD" property="procsStepCd" jdbcType="VARCHAR" />
+		<result column="PROCS_STEP_STCD" property="procsStepStcd" jdbcType="VARCHAR" />
+		<result column="ITEM_COUNT" property="itemCount" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<resultMap id="StatisticsResultMap" type="com.mobileleader.edoc.monitoring.db.dto.EdocGroupProcsStatisticsDto">
+		<result column="DSRB_CD" property="dsrbCd" jdbcType="VARCHAR" />
+		<result column="DSRB_NM" property="dsrbNm" jdbcType="VARCHAR" />
+		<result column="HNDR_NO" property="hndrNo" jdbcType="VARCHAR" />
+		<result column="HNDR_NM" property="hndrNm" jdbcType="VARCHAR" />
+		<result column="WORK_TYPE" property="workType" jdbcType="VARCHAR" />		<!-- 업무유형코드 추가 20180321 -->
+		<result column="INSOURCE_ID" property="insourceId" jdbcType="VARCHAR" />
+		<result column="PPR_CNT_TOTAL" property="pprCntTotal" jdbcType="INTEGER" />
+		<result column="PPR_CNT_0" property="pprCnt0" jdbcType="INTEGER" />
+		<result column="PPR_CNT_1" property="pprCnt1" jdbcType="INTEGER" />
+		<result column="PPR_CNT_9" property="pprCnt9" jdbcType="INTEGER" />
+		<result column="BDT_CNT_TOTAL" property="bdtCntTotal" jdbcType="INTEGER" />
+		<result column="BDT_CNT_0" property="bdtCnt0" jdbcType="INTEGER" />
+		<result column="BDT_CNT_1" property="bdtCnt1" jdbcType="INTEGER" />
+		<result column="BDT_CNT_9" property="bdtCnt9" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="WhereClause">
+		<choose>
+        	<when test="startDate != null and endDate != null and startDate != '' and endDate != ''">TO_CHAR(P.CRTN_TIME,'YYYYMMDDHH24MISS') <![CDATA[ >= ]]> #{startDate, jdbcType=VARCHAR} AND TO_CHAR(P.CRTN_TIME,'YYYYMMDDHH24MISS') <![CDATA[ <= ]]> #{endDate, jdbcType=VARCHAR}</when>
+            <otherwise>TO_CHAR(P.CRTN_TIME,'YYYYMMDDHH24MISS') <![CDATA[ >= ]]> TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS') AND TO_CHAR(P.CRTN_TIME,'YYYYMMDDHH24MISS') <![CDATA[ <= ]]> TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS')</otherwise>
+        </choose>        
+        <if test="prcsTycd != null and prcsTycd != ''"> AND PRCS_TYCD = #{prcsTycd, jdbcType=VARCHAR}</if>
+        <if test="elecDocGroupInexNo != null and elecDocGroupInexNo != ''"> AND P.ELEC_DOC_GROUP_INEX_NO LIKE '%' || #{elecDocGroupInexNo, jdbcType=VARCHAR} || '%'</if>
+        <if test="mainKey != null and mainKey != ''">
+        	AND B.MAIN_KEY = #{mainKey, jdbcType=VARCHAR}
+        </if>
+        <choose>
+        	<when test="insourceId != null and insourceId != ''"> AND INSOURCE_ID = #{insourceId, jdbcType=VARCHAR}</when>
+            <otherwise>
+            	<if test="workType != null and workType != ''">
+            		AND INSOURCE_ID = #{workType}
+            		<!-- <choose>
+            			<when test="workType == '01'">AND (TO_NUMBER(INSOURCE_ID) <![CDATA[ >= ]]> 0 AND TO_NUMBER(INSOURCE_ID) <![CDATA[ < ]]> 20)</when>
+            			<when test="workType == '02'">AND (TO_NUMBER(INSOURCE_ID) <![CDATA[ >= ]]> 20 AND TO_NUMBER(INSOURCE_ID) <![CDATA[ < ]]> 30)</when>
+            			<when test="workType == '03'">AND (TO_NUMBER(INSOURCE_ID) <![CDATA[ >= ]]> 30 AND TO_NUMBER(INSOURCE_ID) <![CDATA[ < ]]> 40)</when>
+            			<when test="workType == '04'">AND (TO_NUMBER(INSOURCE_ID) <![CDATA[ >= ]]> 40 AND TO_NUMBER(INSOURCE_ID) <![CDATA[ < ]]> 50)</when>
+            			<when test="workType == '05'">AND (TO_NUMBER(INSOURCE_ID) <![CDATA[ >= ]]> 50 AND TO_NUMBER(INSOURCE_ID) <![CDATA[ < ]]> 60)</when>
+            			<when test="workType == '06'">AND (TO_NUMBER(INSOURCE_ID) <![CDATA[ >= ]]> 60 AND TO_NUMBER(INSOURCE_ID) <![CDATA[ < ]]> 70)</when>
+            			<when test="workType == '09'">AND (TO_NUMBER(INSOURCE_ID) <![CDATA[ >= ]]> 90 AND TO_NUMBER(INSOURCE_ID) <![CDATA[ < ]]> 100)</when>
+            			<otherwise>AND (TO_NUMBER(INSOURCE_ID) <![CDATA[ >= ]]> #{workTypeStartIndex, jdbcType=INTEGER} AND TO_NUMBER(INSOURCE_ID) <![CDATA[ < ]]> #{workTypeEndIndex, jdbcType=INTEGER})</otherwise>
+            		</choose> -->
+            	</if>
+            </otherwise>
+        </choose>
+        <if test="dsrbCd != null and dsrbCd != ''"> 
+        	AND (DSRB_CD = #{dsrbCd, jdbcType=VARCHAR} OR DSRB_NM LIKE '%' || #{dsrbCd, jdbcType=VARCHAR} || '%')
+        </if>
+        <if test="hndrNo != null and hndrNo != ''"> AND HNDR_NO = #{hndrNo, jdbcType=VARCHAR}</if>
+        <if test="procsStepCd != null and procsStepCd != ''"> AND PROCS_STEP_CD = #{procsStepCd, jdbcType=VARCHAR}</if>
+        <if test="procsStepStcd != null and procsStepStcd != ''"> AND PROCS_STEP_STCD = #{procsStepStcd, jdbcType=VARCHAR}</if>
+        <if test="customerName != null and customerName != ''"> AND CUSTOMER_NAME = #{customerName, jdbcType=VARCHAR}</if>
+        <if test="svrIp != null and svrIp != ''"> AND P.SVR_IP LIKE '%' || #{svrIp, jdbcType=VARCHAR} || '%'</if>
+        AND PROCS_STEP_CD != '00'
+    </sql>
+    
+    <sql id="WhereClauseRegistEcm">
+		<choose>
+        	<when test="startDate != null and endDate != null and startDate != '' and endDate != ''">TO_CHAR(P.CRTN_TIME,'YYYYMMDDHH24MISS') <![CDATA[ >= ]]> #{startDate, jdbcType=VARCHAR} AND TO_CHAR(P.CRTN_TIME,'YYYYMMDDHH24MISS') <![CDATA[ <= ]]> #{endDate, jdbcType=VARCHAR}</when>
+            <otherwise>TO_CHAR(P.CRTN_TIME,'YYYYMMDDHH24MISS') <![CDATA[ >= ]]> TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS') AND TO_CHAR(P.CRTN_TIME,'YYYYMMDDHH24MISS') <![CDATA[ <= ]]> TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS')</otherwise>
+        </choose>      
+        <if test="prcsTycd != null and prcsTycd != ''"> AND PRCS_TYCD = #{prcsTycd, jdbcType=VARCHAR}</if>
+        <if test="elecDocGroupInexNo != null and elecDocGroupInexNo != ''"> AND P.ELEC_DOC_GROUP_INEX_NO LIKE '%' || #{elecDocGroupInexNo, jdbcType=VARCHAR} || '%'</if>
+        <choose>
+        	<when test="insourceId != null and insourceId != ''"> AND INSOURCE_ID = #{insourceId, jdbcType=VARCHAR}</when>
+            <otherwise>
+            	<if test="workType != null and workType != ''">
+            		<choose>
+            			<when test="workType == '01'">AND (TO_NUMBER(INSOURCE_ID) <![CDATA[ >= ]]> 0 AND TO_NUMBER(INSOURCE_ID) <![CDATA[ < ]]> 20)</when>
+            			<otherwise>AND (TO_NUMBER(INSOURCE_ID) <![CDATA[ >= ]]> #{workTypeStartIndex, jdbcType=INTEGER} AND TO_NUMBER(INSOURCE_ID) <![CDATA[ < ]]> #{workTypeEndIndex, jdbcType=INTEGER})</otherwise>
+            		</choose>
+            	</if>
+            </otherwise>
+        </choose>
+        <!-- <if test="insourceId != null and insourceId != ''"> AND INSOURCE_ID = #{insourceId, jdbcType=VARCHAR}</if>
+        <if test="subBzwkDvcd != null and subBzwkDvcd != ''"> AND SUB_INSOURCE_ID = #{subBzwkDvcd, jdbcType=VARCHAR}</if> -->
+        <if test="dsrbCd != null and dsrbCd != ''"> AND DSRB_CD = #{dsrbCd, jdbcType=VARCHAR}</if>
+        <if test="hndrNo != null and hndrNo != ''"> AND HNDR_NO = #{hndrNo, jdbcType=VARCHAR}</if>
+        <if test="customerName != null and customerName != ''"> AND CUSTOMER_NAME = #{customerName, jdbcType=VARCHAR}</if>
+        <if test="svrIp != null and svrIp != ''"> AND P.SVR_IP LIKE '%' || #{svrIp, jdbcType=VARCHAR} || '%'</if>
+        AND ((PROCS_STEP_CD = '40' AND PROCS_STEP_STCD = '1') OR PROCS_STEP_CD IN ('50', '60', '70')) 
+    </sql>
+    
+    <sql id="SortClause">
+        <choose>
+            <when test="sortKey != null and sortKey != ''">
+                <if test="sortKey == 'dsrbCd'">B.DSRB_CD ${sortOrder}</if>
+                <if test="sortKey == 'dsrbNm'">B.DSRB_NM ${sortOrder}</if>
+                <if test="sortKey == 'hndrNo'">B.HNDR_NO ${sortOrder}</if>
+                <if test="sortKey == 'regTime'">B.REG_TIME ${sortOrder}</if>
+                <if test="sortKey == 'crtnTime'">P.CRTN_TIME ${sortOrder}</if>
+                <if test="sortKey == 'insourceId'">B.INSOURCE_ID ${sortOrder}</if>
+                <if test="sortKey == 'elecDocGroupInexNo'">P.ELEC_DOC_GROUP_INEX_NO ${sortOrder}</if>
+                <if test="sortKey == 'prcsTycd'">B.PRCS_TYCD ${sortOrder}</if>
+                <if test="sortKey == 'procsStepCd'">P.PROCS_STEP_CD ${sortOrder}</if>
+                <if test="sortKey == 'procsStepStcd'">P.PROCS_STEP_STCD ${sortOrder}</if>
+                <if test="sortKey == 'svrIp'">P.SVR_IP ${sortOrder}</if>
+                <if test="sortKey == 'mainKey'">B.MAIN_KEY ${sortOrder}</if>
+            </when>
+            <otherwise>P.CRTN_TIME DESC</otherwise>
+        </choose>
+    </sql>
+	
+	<sql id="Base_Column_List">
+		P.ELEC_DOC_GROUP_INEX_NO, P.CRTN_TIME, P.PROCS_STEP_CD, P.PROCS_STEP_STCD, P.PROCS_STEP_MSG_CD, P.PROCS_STEP_ST_TIME, P.PROCS_STEP_ED_TIME, P.SVR_IP,
+		B.MAIN_KEY, B.SCN_NO, B.INSOURCE_ID, B.DSRB_CD, B.DSRB_NM, B.HNDR_NO, B.HNDR_NM, B.REG_TIME, B.MEMO, B.PRCS_TYCD, B.CUSTOMER_NAME
+	</sql>
+	
+	<select id="count" parameterType="com.mobileleader.edoc.monitoring.common.form.EdocProcListForm" resultType="java.lang.Integer">
+		SELECT 
+			COUNT(*)
+  		FROM 
+  			EDS_ELEC_DOC_GROUP_PROCS_MGMT P
+  			inner join EDS_ELEC_DOC_GROUP_BZWK_INFO B ON P.ELEC_DOC_GROUP_INEX_NO = B.ELEC_DOC_GROUP_INEX_NO		
+  		WHERE
+			<include refid="WhereClause"/>  
+	</select>
+	
+	<select id="selectAll" parameterType="com.mobileleader.edoc.monitoring.common.form.EdocProcListForm" resultMap="BaseResultMap">
+		SELECT * FROM ( SELECT rownum rnum, a.* from (
+			SELECT 
+				<include refid="Base_Column_List" />
+	  		FROM 
+	  			EDS_ELEC_DOC_GROUP_PROCS_MGMT P
+	  			inner join EDS_ELEC_DOC_GROUP_BZWK_INFO B ON P.ELEC_DOC_GROUP_INEX_NO = B.ELEC_DOC_GROUP_INEX_NO	
+	  		WHERE
+				<include refid="WhereClause"/>  
+			ORDER BY 
+				<include refid="SortClause"/>  	
+		) a WHERE rownum <![CDATA[ <= ]]> #{pageEndIndex, jdbcType=INTEGER} ) WHERE rnum <![CDATA[ >= ]]> #{pageStartIndex, jdbcType=INTEGER}	
+	</select>
+	
+	<select id="countRegistEcm" parameterType="com.mobileleader.edoc.monitoring.common.form.EdocProcListForm" resultType="java.lang.Integer">
+		SELECT 
+			COUNT(*)
+  		FROM 
+  			EDS_ELEC_DOC_GROUP_PROCS_MGMT P
+  			inner join EDS_ELEC_DOC_GROUP_BZWK_INFO B ON P.ELEC_DOC_GROUP_INEX_NO = B.ELEC_DOC_GROUP_INEX_NO		
+  		WHERE
+			<include refid="WhereClauseRegistEcm"/> 
+	</select>
+	
+	<select id="selectAllRegistEcm" parameterType="com.mobileleader.edoc.monitoring.common.form.EdocProcListForm" resultMap="BaseResultMap">
+		SELECT * 
+        FROM ( SELECT rownum rnum, a.* from (
+			SELECT 
+				<include refid="Base_Column_List" />
+	  		FROM 
+	  			EDS_ELEC_DOC_GROUP_PROCS_MGMT P
+	  			inner join EDS_ELEC_DOC_GROUP_BZWK_INFO B ON P.ELEC_DOC_GROUP_INEX_NO = B.ELEC_DOC_GROUP_INEX_NO	
+	  		WHERE
+				<include refid="WhereClauseRegistEcm"/>  
+			ORDER BY 
+				<include refid="SortClause"/>	
+		) a WHERE rownum <![CDATA[ <= ]]> #{pageEndIndex, jdbcType=INTEGER} ) WHERE rnum <![CDATA[ >= ]]> #{pageStartIndex, jdbcType=INTEGER}	
+	</select>
+	
+	<select id="select" parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT 
+			P.ELEC_DOC_GROUP_INEX_NO, P.CRTN_TIME, P.PROCS_STEP_CD, P.PROCS_STEP_STCD, P.PROCS_STEP_MSG_CD, P.PROCS_STEP_ST_TIME, P.PROCS_STEP_ED_TIME, P.SVR_IP,
+			B.MAIN_KEY, B.SCN_NO, B.INSOURCE_ID, B.DSRB_CD, B.DSRB_NM, B.HNDR_NO, B.HNDR_NM, B.REG_TIME, B.MEMO, 
+			B.PRCS_TYCD, B.CUSTOMER_NAME,
+			<!-- E.FILE_ID, E.DOC_TYCD, E.DOC_NM, E.LEFRM_CD, E.LEFRM_NM, E.FILE_TYCD, E.FILE_NM, E.REG_NTH, E.REG_TIME, -->
+			(CASE 
+        	WHEN B.INSOURCE_ID BETWEEN '01' AND '19' THEN '01' 
+			WHEN B.INSOURCE_ID BETWEEN '20' AND '29' THEN '02'
+			WHEN B.INSOURCE_ID BETWEEN '30' AND '39' THEN '03'
+			WHEN B.INSOURCE_ID BETWEEN '40' AND '49' THEN '04'
+			WHEN B.INSOURCE_ID BETWEEN '50' AND '59' THEN '05'
+			WHEN B.INSOURCE_ID BETWEEN '60' AND '69' THEN '06'
+			WHEN B.INSOURCE_ID BETWEEN '90' AND '99' THEN '09'
+			ELSE '' END) AS WORK_TYPE
+  		FROM 
+  			EDS_ELEC_DOC_GROUP_PROCS_MGMT P
+  			inner join EDS_ELEC_DOC_GROUP_BZWK_INFO B ON P.ELEC_DOC_GROUP_INEX_NO = B.ELEC_DOC_GROUP_INEX_NO
+  			<!-- left outer join EDS_ECM_REG_INFO E ON (B.ELEC_DOC_GROUP_INEX_NO = E.ELEC_DOC_GROUP_INEX_NO AND E.DOC_TYCD = 'EDS_PDF') -->
+  		WHERE
+			P.ELEC_DOC_GROUP_INEX_NO = #{elecDocGroupInexNo, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- GROUP BY ROLLUP(PROCS_STEP_CD, PROCS_STEP_STCD) -->
+	<select id="aggregate" parameterType="com.mobileleader.edoc.monitoring.common.form.EdocProcListForm" resultMap="AggrResultMap">
+		SELECT PROCS_STEP_CD, PROCS_STEP_STCD, COUNT(*) AS ITEM_COUNT
+   		FROM EDS_ELEC_DOC_GROUP_PROCS_MGMT
+   		<where>
+   			<if test="startDateMonitoring != null and endDateMonitoring != null and startDateMonitoring != '' and endDateMonitoring != ''">TO_CHAR(CRTN_TIME,'YYYYMMDDHH24MISS') <![CDATA[ >= ]]> #{startDateMonitoring, jdbcType=VARCHAR} AND TO_CHAR(CRTN_TIME,'YYYYMMDDHH24MISS') <![CDATA[ <= ]]> #{endDateMonitoring, jdbcType=VARCHAR}</if>
+   		</where>
+   		GROUP BY PROCS_STEP_CD, PROCS_STEP_STCD
+   		ORDER BY PROCS_STEP_CD, PROCS_STEP_STCD
+	</select>
+	
+	<update id="updateProcsStepToReprocessingMulti" parameterType="HashMap">
+		UPDATE 
+			EDS_ELEC_DOC_GROUP_PROCS_MGMT
+		SET
+			PROCS_STEP_MSG_CD = 'AAAAAA'
+		WHERE
+			ELEC_DOC_GROUP_INEX_NO IN
+			<foreach collection="edocIdxList" item="item" index="index" separator="," open="(" close=")">
+			    #{item, jdbcType=VARCHAR}
+			</foreach>
+	</update>
+	
+	<update id="updateProcsStepToReprocessing" parameterType="java.lang.String">
+		UPDATE 
+			EDS_ELEC_DOC_GROUP_PROCS_MGMT
+		SET
+			PROCS_STEP_MSG_CD = 'AAAAAA'
+		WHERE
+			ELEC_DOC_GROUP_INEX_NO = #{elecDocGroupInexNo, jdbcType=VARCHAR}
+	</update>
+	
+	<!-- <update id="updateBprTrnmYnToReprocessing" parameterType="java.lang.String">
+		UPDATE 
+			EDS_TX_INFO_LINK
+		SET
+			BPR_TRNM_YN = 'Y'
+		WHERE
+			GUID = #{guid, jdbcType=VARCHAR}
+	</update> -->
+	
+	<sql id="selectStatisticsSelectSql">
+		<if test="workTypeChk != null and workTypeChk != '' and workTypeChk  == 'on'">INSOURCE_ID </if>
+        <if test="(workTypeChk != null and workTypeChk != '' and workTypeChk  == 'on') and dsrbCdChk != null and dsrbCdChk != '' and dsrbCdChk == 'on'">, </if>
+        <if test="dsrbCdChk != null and dsrbCdChk != '' and dsrbCdChk == 'on'">DSRB_CD, DSRB_NM</if>
+        <if test="(workTypeChk != null and workTypeChk != '' and workTypeChk  == 'on' or dsrbCdChk != null and dsrbCdChk != '' and dsrbCdChk == 'on') and hndrNoChk != null and hndrNoChk != '' and hndrNoChk == 'on'">, </if>
+        <if test="hndrNoChk != null and hndrNoChk != '' and hndrNoChk == 'on'">HNDR_NO, HNDR_NM</if>
+	</sql>
+	
+	<sql id="selectStatisticsGroupBySql">
+		<if test="workTypeChk != null and workTypeChk != '' and workTypeChk  == 'on'">INSOURCE_ID</if>
+        <if test="(workTypeChk != null and workTypeChk != '' and workTypeChk  == 'on') and dsrbCdChk != null and dsrbCdChk != '' and dsrbCdChk == 'on'">, </if>
+        <if test="dsrbCdChk != null and dsrbCdChk != '' and dsrbCdChk == 'on'">DSRB_CD, DSRB_NM</if>
+        <if test="(workTypeChk != null and workTypeChk != '' and workTypeChk  == 'on' or dsrbCdChk != null and dsrbCdChk != '' and dsrbCdChk == 'on') and hndrNoChk != null and hndrNoChk != '' and hndrNoChk == 'on'">, </if>
+        <if test="hndrNoChk != null and hndrNoChk != '' and hndrNoChk == 'on'">HNDR_NO, HNDR_NM</if>
+	</sql>
+	
+	<sql id="selectStatisticsOrderBySql">
+		<if test="workTypeChk != null and workTypeChk != '' and workTypeChk  == 'on'">INSOURCE_ID</if>
+        <if test="(workTypeChk != null and workTypeChk != '' and workTypeChk  == 'on') and dsrbCdChk != null and dsrbCdChk != '' and dsrbCdChk == 'on'">, </if>
+        <if test="dsrbCdChk != null and dsrbCdChk != '' and dsrbCdChk == 'on'">DSRB_CD</if>
+        <if test="(workTypeChk != null and workTypeChk != '' and workTypeChk  == 'on' or dsrbCdChk != null and dsrbCdChk != '' and dsrbCdChk == 'on') and hndrNoChk != null and hndrNoChk != '' and hndrNoChk == 'on'">, </if>
+        <if test="hndrNoChk != null and hndrNoChk != '' and hndrNoChk == 'on'">HNDR_NO</if>
+	</sql>
+	
+	<select id="selectStatistics" parameterType="com.mobileleader.edoc.monitoring.common.form.EdocProcListForm" resultMap="StatisticsResultMap">
+		SELECT 
+	        <include refid="selectStatisticsSelectSql"/>  
+        	, COUNT(*) AS PPR_CNT_TOTAL, 
+			SUM(CASE WHEN PROCS_STEP_STCD = '0' THEN 1 ELSE 0 END) AS PPR_CNT_0, 
+			SUM(CASE WHEN PROCS_STEP_STCD = '1' THEN 1 ELSE 0 END) AS PPR_CNT_1, 
+			SUM(CASE WHEN PROCS_STEP_STCD = '9' THEN 1 ELSE 0 END) AS PPR_CNT_9
+   		FROM EDS_ELEC_DOC_GROUP_PROCS_MGMT P inner join EDS_ELEC_DOC_GROUP_BZWK_INFO B on P.ELEC_DOC_GROUP_INEX_NO = B.ELEC_DOC_GROUP_INEX_NO
+   		WHERE
+			<include refid="WhereClause"/>  
+      	GROUP BY 
+      		<include refid="selectStatisticsGroupBySql"/>  
+   		ORDER BY 
+   			<include refid="selectStatisticsOrderBySql"/>  
+	</select>
+  
+    <!-- added query for dashboard by asyu (2019-05-29) -->
+    <resultMap id="dashboardResultMap" type="com.mobileleader.edoc.monitoring.db.dto.dashboard.DashboardBaseDto">
+        <result column="TOTAL_COUNT" property="totalCount" jdbcType="INTEGER" />
+        <result column="COMPLETE_COUNT" property="completeCount" jdbcType="INTEGER" />
+        <result column="PROCESSING_COUNT" property="processingCount" jdbcType="INTEGER" />
+        <result column="ERROR_COUNT" property="errorCount" jdbcType="INTEGER" />
+    </resultMap>
+    
+    <select id="selectDashboardProcessingStatusCountForMonthly" resultMap="dashboardResultMap" parameterType="java.lang.String">
+        SELECT 
+            COUNT(ELEC_DOC_GROUP_INEX_NO) AS TOTAL_COUNT, 
+            NVL(SUM(CASE WHEN PROCS_STEP_STCD = '0' THEN 1 ELSE 0 END), 0) AS PROCESSING_COUNT, 
+            NVL(SUM(CASE WHEN PROCS_STEP_STCD = '1' THEN 1 ELSE 0 END), 0) AS COMPLETE_COUNT, 
+            NVL(SUM(CASE WHEN PROCS_STEP_STCD = '9' THEN 1 ELSE 0 END), 0) AS ERROR_COUNT
+        FROM EDS_ELEC_DOC_GROUP_PROCS_MGMT
+        WHERE TO_CHAR(PROCS_STEP_ED_TIME, 'YYYY.MM') = #{searchYearMonth, jdbcType=VARCHAR}
+    </select>
+    
+    <select id="selectDashboardProcessingStatusCountForDaily" resultMap="dashboardResultMap" parameterType="java.lang.String">
+        SELECT 
+            COUNT(ELEC_DOC_GROUP_INEX_NO) AS TOTAL_COUNT, 
+            NVL(SUM(CASE WHEN PROCS_STEP_STCD = '0' THEN 1 ELSE 0 END), 0) AS PROCESSING_COUNT, 
+            NVL(SUM(CASE WHEN PROCS_STEP_STCD = '1' THEN 1 ELSE 0 END), 0) AS COMPLETE_COUNT, 
+            NVL(SUM(CASE WHEN PROCS_STEP_STCD = '9' THEN 1 ELSE 0 END), 0) AS ERROR_COUNT
+        FROM EDS_ELEC_DOC_GROUP_PROCS_MGMT
+        WHERE TO_CHAR(PROCS_STEP_ED_TIME, 'YYYY.MM.DD') = #{searchDate, jdbcType=VARCHAR}
+    </select>
+    
+</mapper>

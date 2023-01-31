@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+                http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring.xsd
+                http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+	
+	
+	<!-- JNDI (need to remove annotation the web.xml file and annotate above code.) -->
+    <!-- <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:/comp/env/jdbc/eds" />
+	</bean> -->
+	
+	<!-- Oracle -->
+	<util:properties id="db" location="classpath:properties/db.properties" />
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="#{db['driver']}" />
+        <property name="url" value="#{db['url']}" />
+        <property name="username" value="#{db['username']}" />
+        <property name="password" value="#{db['password']}" />
+        <property name="maxActive" value="100" />
+        <property name="initialSize" value="1" />
+        <property name="maxWait" value="20000" />
+        <property name="minIdle" value="1" />
+        <property name="maxIdle" value="30" />
+        <property name="poolPreparedStatements" value="true" />
+        <property name="validationQuery" value="select 1 from dual" />
+    </bean>
+		
+	<!-- sessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="typeAliasesPackage" value="com.mobileleader.edoc.monitoring.db.dto" />
+	</bean>
+	
+ 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+  		<property name="basePackage" value="com.mobileleader.edoc.monitoring.db.mapper" />
+  	</bean>
+
+	<!-- transactionManager -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>		
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+</beans>

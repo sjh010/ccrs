@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+			
+	<util:properties id="localStorage" location="classpath:properties/localStorage.properties" />
+		
+	<bean id="fileStorage" class="com.mobileleader.webform.common.storage.LocalStorage">
+		<constructor-arg name="rootPath" value="#{localStorage['rootPath']}"/>		
+	</bean>
+	
+	<bean id="fileCacheStorage" class="com.mobileleader.webform.common.storage.cache.FileCacheManager">
+		<property name="lowStorage" ref="fileStorage"/>		
+		<property name="fileCacheRoot" value="#{service['cache.fileCacheRoot']}"/>
+		<property name="fileCacheMode" value="#{service['cache.fileCacheMode']}"/>
+		
+		<property name="infoMapSize" value="#{service['fileCache.info.size']}"/>
+		<property name="infoMapTimeout" value="#{service['fileCache.info.timeout']}"/>
+		<property name="fileMapSize" value="#{service['fileCache.file.size']}"/>
+		<property name="fileMapTimeout" value="#{service['fileCache.file.timeout']}"/>
+		<property name="binaryMapSize" value="#{service['fileCache.binary.size']}"/>
+		<property name="binaryMapTimeout" value="#{service['fileCache.binary.timeout']}"/>
+	</bean>
+	
+	<bean id="annotationStorage" class="com.mobileleader.webform.sform.annotation.storage.LocalAnnotationStorage">
+		<property name="storage" ref="fileStorage"/>
+	</bean>
+	
+	<bean id="sFormCacheManager" class="com.mobileleader.webform.sform.streaming.cache.SFromCacheManager">
+		<property name="fileStorage" ref="fileCacheStorage"/>		
+		<property name="annotationStorage" ref="annotationStorage"/>
+		
+		<property name="fileInfoMapSize" value="#{service['sformCache.fileInfo.size']}"/>
+		<property name="fileInfoMapTimeout" value="#{service['sformCache.fileInfo.timeout']}"/>
+		<property name="pageInfoMapSize" value="#{service['sformCache.pageInfo.size']}"/>
+		<property name="pageInfoMapTimeout" value="#{service['sformCache.pageInfo.timeout']}"/>
+		<property name="streamingMapSize" value="#{service['sformCache.streaming.size']}"/>
+		<property name="stremingMapTimeout" value="#{service['sformCache.streaming.timeout']}"/>
+		<property name="thumbnailMapSize" value="#{service['sformCache.thumbanil.size']}"/>
+		<property name="thumbnailMapTimeout" value="#{service['sformCache.thumbanil.timeout']}"/>
+		<property name="annotationInfoMapSize" value="#{service['sformCache.annotationInfo.size']}"/>
+		<property name="annotationInfoMapTimeout" value="#{service['sformCache.annotationInfo.timeout']}"/>	
+	</bean>
+</beans>

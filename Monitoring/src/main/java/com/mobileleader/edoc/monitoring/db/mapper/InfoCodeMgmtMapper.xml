@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mobileleader.edoc.monitoring.db.mapper.InfoCodeMgmtMapper">	
+	<resultMap id="BaseResultMap" type="com.mobileleader.edoc.monitoring.db.dto.InfoCodeDto">
+		<id		column="CD_GROUP"	property="cdGroup"	jdbcType="VARCHAR" />
+		<id		column="CD_VAL"		property="cdVal"	jdbcType="VARCHAR" />
+		<result column="CD_NM"		property="cdNm"		jdbcType="VARCHAR" />
+		<result column="SEQNO"		property="seqno"	jdbcType="INTEGER" />
+		<result column="UZ_YN"		property="uzYn"		jdbcType="CHAR" />
+		<result column="REG_BRCD"	property="regBrcd"	jdbcType="VARCHAR" />
+		<result column="REG_BRN_NM"	property="regBrnNm"	jdbcType="VARCHAR" />
+		<result column="REG_EMPNO"	property="regEmpno"	jdbcType="VARCHAR" />
+		<result column="REG_EMP_NM"	property="regEmpNm"	jdbcType="VARCHAR" />
+		<result column="REG_TIME"	property="regTime"	jdbcType="TIMESTAMP" />
+		<result column="rn"			property="rowNum"	jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="WhereClause">
+		<where>
+	        <if test="cdGroup != null and cdGroup != ''">
+	        	CD_GROUP = #{cdGroup, jdbcType=VARCHAR}
+	        </if>
+	        <if test="cdVal != null and cdVal != ''">
+	        	AND CD_VAL = #{cdVal, jdbcType=VARCHAR}
+	        </if>
+	        <if test="cdNm != null and cdNm != ''">
+	        	AND CD_NM LIKE '%' || #{cdNm, jdbcType=VARCHAR} || '%'
+	        </if>
+	        <if test="uzYn != null and uzYn != ''">
+	        	AND UZ_YN = #{uzYn, jdbcType=CHAR}
+	        </if>
+        </where>
+    </sql>
+    
+    <sql id="SortClause">
+        <choose>
+            <when test="sortKey != null and sortKey != ''">
+                <if test="sortKey == 'cdGroup'">CD_GROUP ${sortOrder}</if>
+                <if test="sortKey == 'cdVal'">CD_VAL ${sortOrder}</if>
+                <if test="sortKey == 'cdNm'">CD_NM ${sortOrder}</if>
+                <if test="sortKey == 'seqno'">SEQNO ${sortOrder}</if>
+                <if test="sortKey == 'uzYn'">UZ_YN ${sortOrder}</if>
+                <if test="sortKey == 'regTime'">REG_TIME ${sortOrder}</if>              
+            </when>
+            <otherwise>CD_GROUP ASC</otherwise>
+        </choose>
+    </sql>
+	
+	<sql id="Base_Column_List">
+		CD_GROUP, CD_VAL, CD_NM, SEQNO, UZ_YN, REG_BRCD, REG_BRN_NM, REG_EMPNO, REG_EMP_NM
+		, TO_CHAR(REG_TIME, 'YYYY-MM-DD HH24:MI:SS') AS REG_TIME
+	</sql>
+	
+	<select id="selectTotalCount" parameterType="com.mobileleader.edoc.monitoring.common.form.InfoCodeForm"
+		resultType="java.lang.Integer">
+		SELECT 
+			COUNT(*)
+  		FROM 
+  			EDS_COM_CD_MGMT
+		<include refid="WhereClause"/>  
+	</select>
+	
+	<select id="selectCodeList" parameterType="com.mobileleader.edoc.monitoring.common.form.InfoCodeForm"
+		resultMap="BaseResultMap">
+		SELECT
+			*
+		FROM
+			(
+			SELECT
+				ROWNUM as rn
+				,A.*
+			FROM
+				(
+				SELECT
+					<include refid="Base_Column_List" />
+		  		FROM 
+		  			EDS_COM_CD_MGMT
+				<include refid="WhereClause"/>
+				ORDER BY
+					<include refid="SortClause"/>  
+				) A
+			ORDER BY
+				ROWNUM
+			)
+			WHERE rn <![CDATA[ >= ]]> #{pageStartIndex, jdbcType=INTEGER} and rn <![CDATA[ <= ]]> #{pageEndIndex, jdbcType=INTEGER}
+	</select>
+	
+	<insert id="insertCode" parameterType="com.mobileleader.edoc.monitoring.db.dto.InfoCodeDto">
+		INSERT INTO
+			EDS_COM_CD_MGMT
+			(
+			CD_GROUP
+			,CD_VAL
+			,CD_NM
+			,SEQNO
+			,UZ_YN
+			,REG_BRCD
+			,REG_BRN_NM
+			,REG_EMPNO
+			,REG_EMP_NM
+			,REG_TIME
+			)
+		VALUES
+			(
+			#{cdGroup, jdbcType=VARCHAR}
+	        ,#{cdVal, jdbcType=VARCHAR}
+	        ,#{cdNm, jdbcType=VARCHAR}
+	        ,#{seqno, jdbcType=INTEGER}
+	        ,#{uzYn, jdbcType=CHAR}
+	        ,#{regBrcd, jdbcType=VARCHAR}
+	        ,#{regBrnNm, jdbcType=VARCHAR}
+	        ,#{regEmpno, jdbcType=VARCHAR}
+	        ,#{regEmpNm, jdbcType=VARCHAR}
+	        ,SYSDATE
+			)
+	</insert>
+	
+	<update id="updateCode" parameterType="com.mobileleader.edoc.monitoring.db.dto.InfoCodeDto">
+		UPDATE
+			EDS_COM_CD_MGMT
+		SET
+			CD_GROUP		= #{cdGroup, jdbcType=VARCHAR}
+			,CD_VAL			= #{cdVal, jdbcType=VARCHAR}
+			,CD_NM			= #{cdNm, jdbcType=VARCHAR}
+			,SEQNO			= #{seqno, jdbcType=INTEGER}
+			,UZ_YN			= #{uzYn, jdbcType=CHAR}
+			,REG_BRCD		= #{regBrcd, jdbcType=VARCHAR}
+			,REG_BRN_NM		= #{regBrnNm, jdbcType=VARCHAR}
+			,REG_EMPNO		= #{regEmpno, jdbcType=VARCHAR}
+			,REG_EMP_NM		= #{regEmpNm, jdbcType=VARCHAR}
+			,REG_TIME		= SYSDATE
+		WHERE
+			CD_GROUP		= #{exCdGroup, jdbcType=VARCHAR}
+		AND
+			CD_VAL			= #{exCdVal, jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteCode" parameterType="com.mobileleader.edoc.monitoring.common.form.InfoCodeForm">
+		DELETE FROM 
+			EDS_COM_CD_MGMT
+		<include refid="WhereClause"/>
+	</delete>
+	
+	<select id="selectGroupCodeList" parameterType="HashMap" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+  		FROM 
+  			EDS_COM_CD_MGMT
+		WHERE
+			UZ_YN = 'Y'
+			AND CD_GROUP = #{cdGroup, jdbcType=VARCHAR}
+		ORDER BY
+			SEQNO
+	</select>
+	
+	<select id="selectGroupCode" parameterType="HashMap" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+  		FROM 
+  			EDS_COM_CD_MGMT
+		WHERE
+			UZ_YN = 'Y'
+			AND CD_GROUP = #{cdGroup, jdbcType=VARCHAR}
+			AND CD_VAL = #{cdVal, jdbcType=VARCHAR}
+	</select>
+</mapper>

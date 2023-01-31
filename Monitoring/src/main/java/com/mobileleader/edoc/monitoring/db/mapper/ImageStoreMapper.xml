@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mobileleader.edoc.monitoring.db.mapper.ImageStoreMapper">
+		
+	<resultMap id="ImageStoreResultMap" type="com.mobileleader.image.db.dto.ImageStoreDto">
+		<id column="MAIN_KEY" 					property="mainKey"				jdbcType="VARCHAR" />
+		<result column="BRANCH_CODE" 			property="branchCode" 			jdbcType="VARCHAR" />
+		<result column="BRANCH_TITLE" 			property="branchTitle" 			jdbcType="VARCHAR" />
+		<result column="GUIDE_NAME" 			property="guideName"	 		jdbcType="VARCHAR" />
+		<result column="EMPLOYEE_NAME" 			property="employeeName" 		jdbcType="VARCHAR" />
+		<result column="EMPLOYEE_ID" 			property="employeeId" 			jdbcType="VARCHAR" />
+		<result column="CUSTOMER_NAME" 			property="customerName" 		jdbcType="VARCHAR" />
+		<result column="DOC_MAPPING_COUNT" 		property="docMappingCount" 		jdbcType="INTEGER" />
+		<result column="PREVIOUS_DEVICE_INFO" 	property="previousDeviceInfo"	jdbcType="VARCHAR" />
+		<result column="INSOURCE_ID" 			property="insourceId" 			jdbcType="VARCHAR" />
+		<result column="INSOURCE_TITLE" 		property="insourceTitle"		jdbcType="VARCHAR" />
+		<result column="MEMO" 					property="memo"					jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" 			property="createTime"	 		jdbcType="TIMESTAMP" />
+		<result column="MODIFY_TIME" 			property="modifyTime"	 		jdbcType="TIMESTAMP" />
+		<result column="TASK_KEY" 				property="taskKey"				jdbcType="VARCHAR" />
+		<result column="TEL" 					property="tel"					jdbcType="VARCHAR" />	
+	</resultMap>
+	
+	<sql id="base_column_list">
+		MAIN_KEY,
+		BRANCH_CODE,
+		BRANCH_TITLE,
+		GUIDE_NAME, 
+		EMPLOYEE_NAME,
+		EMPLOYEE_ID, 
+		CUSTOMER_NAME, 
+		DOC_MAPPING_COUNT, 
+		PREVIOUS_DEVICE_INFO, 
+		INSOURCE_ID,
+		INSOURCE_TITLE, 
+		MEMO, 
+		CREATE_TIME, 
+		MODIFY_TIME,
+		TASK_KEY,
+		TEL	
+	</sql>
+ 
+ 	<sql id="WhereClause">
+ 		<if test="startDate != null and endDate != null and startDate != '' and endDate != ''">
+			AND CREATE_TIME <![CDATA[ >= ]]> TO_DATE(#{startDate, jdbcType=VARCHAR}, 'YYYYMMDDHH24MISS')
+			AND CREATE_TIME <![CDATA[ <= ]]> TO_DATE(#{endDate, jdbcType=VARCHAR}, 'YYYYMMDDHH24MISS')
+		</if>
+ 		<if test="mainKey != null and mainKey !=''">
+ 			AND MAIN_KEY = #{mainKey}
+ 		</if>
+		<if test="branchCode != null and branchCode != ''">
+			AND BRANCH_CODE = #{branchCode}
+		</if>
+		<if test="guideName != null and guideName != ''">
+			AND GUIDE_NAME = #{guideName}
+		</if>
+		<if test="employeeName != null and employeeName != ''">
+			AND (EMPLOYEE_NAME LIKE '%' || #{employeeName} || '%' OR EMPLOYEE_ID = #{employeeName})
+		</if>
+		<if test="employeeId != null and employeeId != ''">
+			AND EMPLOYEE_ID = #{employeeId}
+		</if>
+		<if test="customerName != null and customerName != ''">
+			AND CUSTOMER_NAME = #{customerName}
+		</if>
+		<if test="insourceId != null and insourceId != ''">
+			AND INSOURCE_ID = #{insourceId}
+		</if>
+		<if test="taskKey != null and taskKey != ''">
+			AND TASK_KEY = #{taskKey}
+		</if>
+		<if test="memo != null and memo != ''">
+			AND MEMO = #{encryptedMemo}
+		</if>
+	</sql>
+	
+	<sql id="SortClause">
+		<choose>
+            <when test="sortKey != null and sortKey != ''">
+                <if test="sortKey == 'branchCode'">BRANCH_CODE ${sortOrder}</if>
+                <if test="sortKey == 'branchTitle'">BRANCH_TITLE ${sortOrder}</if>
+                <if test="sortKey == 'employeeName'">EMPLOYEE_NAME ${sortOrder}</if>
+                <if test="sortKey == 'employeeId'">EMPLOYEE_ID ${sortOrder}</if>
+                <if test="sortKey == 'customerName'">CUSTOMER_NAME ${sortOrder}</if>
+                <if test="sortKey == 'insourceId'">INSOURCE_ID ${sortOrder}</if>
+                <if test="sortKey == 'insourceTitle'">INSOURCE_TITLE ${sortOrder}</if>
+                <if test="sortKey == 'createTime'">CREATE_TIME ${sortOrder}</if>
+                <if test="sortKey == 'modifyTime'">MODIFY_TIME ${sortOrder}</if>
+            </when>
+            <otherwise>CREATE_TIME DESC</otherwise>
+        </choose>
+	</sql>
+	
+	<select id="totalCount" parameterType="com.mobileleader.edoc.monitoring.common.model.request.ImageSearchReqeust" resultType="Integer">
+ 		SELECT 
+ 			COUNT(MAIN_KEY)
+ 		FROM
+ 			IMAGE_STORE
+ 		WHERE
+ 			1=1
+ 			<include refid="WhereClause" />
+ 	</select>
+	
+	<select id="selectList" parameterType="com.mobileleader.edoc.monitoring.common.model.request.ImageSearchReqeust" 
+		resultMap="ImageStoreResultMap">
+ 		SELECT * 
+ 		FROM ( 
+ 				SELECT rownum rnum, a.* 
+ 				FROM (
+						SELECT 
+							<include refid="base_column_list" />
+	  					FROM 
+	  						IMAGE_STORE 	
+	  					WHERE
+	  						1=1
+							<include refid="WhereClause"/>  
+						ORDER BY 
+							<include refid="SortClause"/>  	
+					  ) a 
+					<if test="pageEndIndex != null">
+					WHERE rownum <![CDATA[ <= ]]> #{pageEndIndex, jdbcType=INTEGER}
+					</if>
+					 
+			 )
+			<if test="pageStartIndex != null">
+			WHERE rnum <![CDATA[ >= ]]> #{pageStartIndex, jdbcType=INTEGER}
+			</if>
+				
+ 	</select>
+
+ 	<select id="selectMonthlyRank" parameterType="String" resultType="hashmap">
+		SELECT 
+			A.*
+		FROM 
+			(
+				SELECT 
+    				BRANCH_CODE, BRANCH_TITLE,
+    				RANK() OVER (ORDER BY COUNT(MAIN_KEY) DESC) AS RANK,
+    				COUNT(MAIN_KEY) AS COUNT
+				FROM 
+    				IMAGE_STORE
+				WHERE
+    				TO_CHAR(CREATE_TIME, 'YYYY.MM') = #{month, jdbcType=VARCHAR}
+				GROUP BY
+    				BRANCH_CODE, BRANCH_TITLE
+    			ORDER BY
+    				RANK ASC
+			 ) A
+		WHERE
+			rownum <![CDATA[ <= ]]> 10
+	</select>
+	
+	<select id="selectDailyRank" parameterType="String" resultType="hashmap">
+		SELECT 
+			A.*
+		FROM 
+			(
+				SELECT 
+    				BRANCH_CODE, BRANCH_TITLE,
+    				RANK() OVER (ORDER BY COUNT(MAIN_KEY) DESC) AS RANK,
+    				COUNT(MAIN_KEY) AS COUNT
+				FROM 
+    				IMAGE_STORE
+				WHERE
+    				TO_CHAR(CREATE_TIME, 'YYYY.MM.DD') = #{day, jdbcType=VARCHAR}
+				GROUP BY
+    				BRANCH_CODE, BRANCH_TITLE
+    			ORDER BY
+    				RANK ASC
+			 ) A
+		WHERE
+			rownum <![CDATA[ <= ]]> 10
+	</select>
+	
+	<!-- <select id="selectMonthlyChannel" parameterType="String" resultType="hashmap">
+		SELECT 
+		    COUNT(FUNNELS) AS TOTAL_COUNT,
+		    NVL(SUM(CASE WHEN UPPER(FUNNELS) = 'SCAN' THEN 1 ELSE 0 END), 0) AS SCAN_COUNT,
+		    NVL(SUM(CASE WHEN UPPER(FUNNELS) = 'CYBER' THEN 1 ELSE 0 END), 0) AS CYBER_COUNT,
+		    NVL(SUM(CASE WHEN UPPER(FUNNELS) = 'EDOC' THEN 1 ELSE 0 END), 0) AS EDOC_COUNT
+		FROM 
+		    IMAGE_FILE
+		WHERE
+		    TO_CHAR(CREATE_TIME, 'YYYY.MM') = #{month, jdbcType=VARCHAR} 
+	</select> -->
+	
+	<select id="selectMonthlyChannel" parameterType="String" resultType="hashmap">
+		SELECT 
+		  A.*
+		FROM 
+		  (
+		    SELECT 
+		        INSOURCE_ID,
+		        RANK() OVER (ORDER BY COUNT(MAIN_KEY) DESC) AS RANK,
+		        COUNT(MAIN_KEY) AS COUNT
+		    FROM 
+		        IMAGE_STORE
+		    WHERE
+		        TO_CHAR(CREATE_TIME, 'YYYY.MM') = #{month, jdbcType=VARCHAR}
+		    GROUP BY
+		        INSOURCE_ID
+		      ORDER BY
+		        RANK ASC
+		   ) A
+	</select>
+	
+	<select id="selectDailyChannel" parameterType="String" resultType="hashmap">
+		SELECT 
+		  A.*
+		FROM 
+		  (
+		    SELECT 
+		        INSOURCE_ID,
+		        RANK() OVER (ORDER BY COUNT(MAIN_KEY) DESC) AS RANK,
+		        COUNT(MAIN_KEY) AS COUNT
+		    FROM 
+		        IMAGE_STORE
+		    WHERE
+		        TO_CHAR(CREATE_TIME, 'YYYY.MM.DD') = #{day, jdbcType=VARCHAR}
+		    GROUP BY
+		        INSOURCE_ID
+		      ORDER BY
+		        RANK ASC
+		   ) A
+	</select>
+	 
+	 
+	<select id="selectDepartmentList" resultType="hashmap">
+		SELECT 
+			BRANCH_CODE, BRANCH_TITLE
+		FROM 
+			IMAGE_STORE
+		GROUP BY 
+			BRANCH_CODE, BRANCH_TITLE
+		ORDER BY
+			BRANCH_TITLE ASC
+	</select>
+</mapper>
+ 

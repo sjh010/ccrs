@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mobileleader.edoc.monitoring.db.mapper.PermMapper">	
+	<resultMap id="BaseResultMap" type="com.mobileleader.edoc.monitoring.db.dto.PermMgmtDto">
+		<id column="PERM_ID" property="permId" jdbcType="INTEGER" />
+		<result column="PERM_NM" property="permNm" jdbcType="VARCHAR" />
+		<result column="REG_EMPNO" property="regEmpNo" jdbcType="VARCHAR" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+	    <result column="CHNG_EMPNO" property="chngEmpNo" jdbcType="VARCHAR" />
+	    <result column="CHNG_TIME" property="chngTime" jdbcType="TIMESTAMP" />		
+	    <collection property="menuAccsPerm" resultMap="MenuAccsPermResultMap"/>
+	</resultMap>
+	
+	<resultMap id="MenuAccsPermResultMap" type="com.mobileleader.edoc.monitoring.db.dto.MenuAccsPermDto">
+		<id column="PERM_ID" property="permId" jdbcType="INTEGER" />
+		<id column="MENU_CD" property="menuCd" jdbcType="VARCHAR" />
+		<result column="ACCS_YN" property="accsYn" jdbcType="VARCHAR" />
+		<result column="LIST_YN" property="listYn" jdbcType="VARCHAR" />
+		<result column="DTAL_YN" property="dtalYn" jdbcType="VARCHAR" />
+		<result column="REG_YN" property="regYn" jdbcType="VARCHAR" />
+		<result column="EDIT_YN" property="editYn" jdbcType="VARCHAR" />
+		<result column="DEL_YN" property="delYn" jdbcType="VARCHAR" />
+		<result column="REG_EMPNO" property="regEmpNo" jdbcType="VARCHAR" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+	    <result column="CHNG_EMPNO" property="chngEmpNo" jdbcType="VARCHAR" />
+	    <result column="CHNG_TIME" property="chngTime" jdbcType="TIMESTAMP" />		
+	</resultMap>
+		
+	<sql id="Base_Column_List">
+		P.PERM_ID, P.PERM_NM, P.REG_EMPNO, P.REG_TIME, P.CHNG_EMPNO, P.CHNG_TIME
+	</sql>
+	
+	<sql id="Accs_Column_List">
+		M.PERM_ID, M.MENU_CD, M.ACCS_YN, M.LIST_YN, M.DTAL_YN, M.REG_YN, M.EDIT_YN, M.DEL_YN, M.REG_EMPNO, M.REG_TIME, M.CHNG_EMPNO, M.CHNG_TIME
+	</sql>
+	
+	<select id="selectAll" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List"/>
+  		FROM 
+  			EDS_PERM_MGMT P
+  		ORDER BY
+  			P.PERM_ID  			  		 
+	</select>	
+	
+	<select id="selectByPermId" parameterType="Int" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List"/>,
+			<include refid="Accs_Column_List"/>
+  		FROM 
+  			EDS_PERM_MGMT P
+  			LEFT JOIN EDS_MENU_ACCS_PERM M ON P.PERM_ID = M.PERM_ID
+  		WHERE
+			 P.PERM_ID = #{permId, jdbcType=INTEGER} 
+	</select>	
+	
+	<select id="selectPernNmCount" parameterType="String" resultType="Int">
+		SELECT 
+			count(*)
+  		FROM 
+  			EDS_PERM_MGMT P
+  		WHERE
+			 P.PERM_NM = #{permNm, jdbcType=VARCHAR} 
+	</select>
+	
+	<insert id="insertPerm" parameterType="com.mobileleader.edoc.monitoring.db.dto.PermMgmtDto">
+		<selectKey keyProperty="permId" resultType="int" order="BEFORE">
+    		select PERM_ID_SEQ.nextval FROM DUAL
+  		</selectKey>
+		INSERT INTO EDS_PERM_MGMT (
+			PERM_ID,
+			PERM_NM,
+			REG_EMPNO,
+			REG_TIME,
+			CHNG_EMPNO,
+			CHNG_TIME	
+			)
+			VALUES(
+			#{permId, jdbcType=INTEGER},
+			#{permNm, jdbcType=VARCHAR},  			
+			#{regEmpNo, jdbcType=VARCHAR},
+			SYSTIMESTAMP,
+			#{chngEmpNo, jdbcType=VARCHAR},
+			SYSTIMESTAMP
+			)
+	</insert>
+	
+	<update id="updatePerm" parameterType="com.mobileleader.edoc.monitoring.db.dto.PermMgmtDto">
+		UPDATE EDS_PERM_MGMT
+		SET
+			PERM_NM = #{permNm, jdbcType=VARCHAR}, 
+			CHNG_EMPNO = #{chngEmpNo, jdbcType=VARCHAR},
+			CHNG_TIME = SYSTIMESTAMP	
+		WHERE
+			PERM_ID = #{permId, jdbcType=INTEGER}
+	</update>
+	
+	<delete id="deletePerm" parameterType="Int">
+		DELETE
+		FROM
+			EDS_PERM_MGMT
+  		WHERE
+			 PERM_ID = #{permId, jdbcType=INTEGER} 
+	</delete>
+	
+	<insert id="insertMeneAccs" parameterType="com.mobileleader.edoc.monitoring.db.dto.MenuAccsPermDto">
+		INSERT INTO EDS_MENU_ACCS_PERM (
+			PERM_ID, 
+			MENU_CD, 
+			ACCS_YN, 
+			LIST_YN, 
+			DTAL_YN, 
+			REG_YN, 
+			EDIT_YN, 
+			DEL_YN, 
+			REG_EMPNO, 
+			REG_TIME, 
+			CHNG_EMPNO, 
+			CHNG_TIME
+			)
+			VALUES(
+			#{permId, jdbcType=INTEGER},
+			#{menuCd, jdbcType=VARCHAR},
+			#{accsYn, jdbcType=VARCHAR},
+			#{listYn, jdbcType=VARCHAR},
+			#{dtalYn, jdbcType=VARCHAR},
+			#{regYn, jdbcType=VARCHAR},
+			#{editYn, jdbcType=VARCHAR},
+			#{delYn, jdbcType=VARCHAR},
+			#{regEmpNo, jdbcType=VARCHAR},
+			SYSTIMESTAMP,
+			#{chngEmpNo, jdbcType=VARCHAR},
+			SYSTIMESTAMP
+			)
+	</insert>
+	
+	<update id="updateMeneAccs" parameterType="com.mobileleader.edoc.monitoring.db.dto.MenuAccsPermDto">
+		UPDATE EDS_MENU_ACCS_PERM
+		SET
+			ACCS_YN = #{accsYn, jdbcType=VARCHAR}, 
+			LIST_YN = #{listYn, jdbcType=VARCHAR}, 
+			DTAL_YN = #{dtalYn, jdbcType=VARCHAR}, 
+			REG_YN = #{regYn, jdbcType=VARCHAR}, 
+			EDIT_YN = #{editYn, jdbcType=VARCHAR}, 
+			DEL_YN = #{delYn, jdbcType=VARCHAR}, 
+			CHNG_EMPNO = #{chngEmpNo, jdbcType=VARCHAR},
+			CHNG_TIME = SYSTIMESTAMP	
+		WHERE
+			PERM_ID = #{permId, jdbcType=INTEGER} 	
+			AND MENU_CD = #{menuCd, jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteMeneAccsByPermId" parameterType="Int">
+		DELETE
+		FROM
+			EDS_MENU_ACCS_PERM
+  		WHERE
+			 PERM_ID = #{permId, jdbcType=INTEGER} 
+	</delete>
+	
+	<delete id="deleteMeneAccsByMenuCd" parameterType="String">
+		DELETE
+		FROM
+			EDS_MENU_ACCS_PERM
+  		WHERE
+			 MENU_CD = #{menuCd, jdbcType=VARCHAR} 
+	</delete>
+</mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+	<task:scheduler id="aliveScheduler"/>
+
+	<task:annotation-driven/>
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+
+	<context:annotation-config />
+	
+	<context:component-scan base-package="com.mobileleader">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:exclude-filter type="regex" expression="com.mobileleader.webform.eform.*"/>
+		<context:exclude-filter type="regex" expression="com.mobileleader.webform.sync.*"/>
+	</context:component-scan>	
+	
+	<util:properties id="service" location="classpath:properties/service.properties" />	
+	
+	<import resource="storage-context-local.xml"/>
+	<import resource="database-context.xml"/>
+	
+	<bean id="fileAttachService" class="com.mobileleader.edoc.monitoring.service.FileAttachServiceImpl">
+		<property name="fileStorage" ref="fileStorage"/>
+	</bean>
+	
+	<!-- Config -->  	
+	<util:properties id="monitoring" location="classpath:properties/monitoring.properties" />	
+	<bean id="config" class="com.mobileleader.edoc.monitoring.core.config.Config">
+		<property name="fileUploadRootPath" value="#{monitoring['file.upload.rootPath']}"/>
+		<property name="fileUploadTempRootPath" value="#{monitoring['file.upload.temp.rootPath']}"/>
+	 	<property name="shellCommandPath"	value="#{monitoring['shell.command.path']}"/> 
+	 	<property name="monirotingWasPort"	value="#{monitoring['monitoring.was.port']}"/>
+	 	<property name="retryCheckUrl"	value="#{monitoring['process.retry.check.url']}"/>
+	 	<property name="retryCheckGoto"	value="#{monitoring['process.retry.check.goto']}"/>
+	 	
+	 	<property name="bgDaemonRootPath"	value="#{monitoring['log.bgDaemon.path']}"/>
+	 	<property name="bgDaemonFilename"	value="#{monitoring['log.bgDaemon.filename']}"/>
+	 	<property name="bgDaemonFilenamePattern"	value="#{monitoring['log.bgDaemon.filename.pattern']}"/>
+	 	<property name="eaiServerRootPath"	value="#{monitoring['log.EaiServer.path']}"/>
+	 	<property name="eaiServerFilename"	value="#{monitoring['log.EaiServer.filename']}"/>
+	 	<property name="eaiServerFilenamePattern"	value="#{monitoring['log.EaiServer.filename.pattern']}"/>
+	 	<property name="scServerRootPath"	value="#{monitoring['log.scServer.path']}"/>
+	 	<property name="scServerFilename"	value="#{monitoring['log.scServer.filename']}"/>
+	 	<property name="scServerFilenamePattern"	value="#{monitoring['log.scServer.filename.pattern']}"/>
+	 	<property name="exrepApiRootPath"	value="#{monitoring['log.exrep.path']}"/>
+	 	<property name="exrepApiFilename"	value="#{monitoring['log.exrep.filename']}"/>
+	 	<property name="exrepApiFilenamePattern"	value="#{monitoring['log.exrep.filename.pattern']}"/>
+	 	
+	 	<property name="pprServerProtocol"	value="#{monitoring['ppr.server.info.protocol']}"/>
+	 	<property name="pprServerHost"	value="#{monitoring['ppr.server.info.host']}"/>
+	 	<property name="pprServerIp"	value="#{monitoring['ppr.server.info.ip']}"/>
+	 	<property name="pprServerPort"	value="#{monitoring['ppr.server.info.port']}"/>
+	 	<property name="pprServerContext"	value="#{monitoring['ppr.server.info.context']}"/>
+	</bean>
+	
+</beans>

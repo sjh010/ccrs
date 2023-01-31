@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mobileleader.edoc.monitoring.db.mapper.UserMgmtMapper">	
+	<resultMap id="BaseResultMap" type="com.mobileleader.edoc.monitoring.db.dto.UserMgmtDto">
+		<id column="EMPNO" property="empNo" jdbcType="VARCHAR" />
+		<result column="PSWD" property="password" jdbcType="VARCHAR" />
+		<result column="PERM_ID" property="permId" jdbcType="INTEGER" />
+		<result column="PERM_NM" property="permNm" jdbcType="VARCHAR" />
+		<result column="BRCD" property="brcd" jdbcType="VARCHAR" />
+		<result column="BRN_NM" property="brnNm" jdbcType="VARCHAR" />
+		<result column="EMP_NM" property="empNm" jdbcType="VARCHAR" />
+		<result column="PST_NM" property="pstNm" jdbcType="VARCHAR" />
+		<result column="UZ_YN" property="uzYn" jdbcType="VARCHAR" />
+		<result column="REG_EMPNO" property="regEmpNo" jdbcType="VARCHAR" />
+	    <result column="REG_TIME" property="regTime" jdbcType="TIMESTAMP" />
+	    <result column="CHNG_EMPNO" property="chngEmpNo" jdbcType="VARCHAR" />
+	    <result column="CHNG_TIME" property="chngTime" jdbcType="TIMESTAMP" />	
+	    <result column="PSWD_ERR_CNT" property="passwordErrorCount" jdbcType="INTEGER" />
+	</resultMap>
+		
+	<sql id="Base_Column_List">
+		U.EMPNO, U.PSWD, U.PERM_ID, U.BRCD, U.BRN_NM, U.EMP_NM, U.PST_NM, U.UZ_YN, U.REG_EMPNO, U.REG_TIME, U.CHNG_EMPNO, U.CHNG_TIME, U.PSWD_ERR_CNT
+	</sql>
+
+	<sql id="WhereClause">
+		<where>		
+        <if test="brcd != null and brcd != ''"> 
+        	(U.BRCD = #{brcd, jdbcType=VARCHAR} OR U.BRN_NM LIKE '%' || #{brcd, jdbcType=VARCHAR} || '%') 
+        </if>
+        <if test="empNo != null and empNo != ''"> AND U.EMPNO = #{empNo, jdbcType=VARCHAR}</if>
+        <if test="permId != null and permId != 0"> AND U.PERM_ID = #{permId, jdbcType=INTEGER}</if>
+        <if test="uzYn != null and uzYn != ''"> AND U.UZ_YN = #{uzYn, jdbcType=VARCHAR}</if>
+        </where>        
+    </sql>
+    
+    <sql id="SortClause">
+        <choose>
+            <when test="sortKey != null and sortKey != ''">
+                <if test="sortKey == 'brcd'">U.BRCD ${sortOrder}</if>
+                <if test="sortKey == 'empNo'">U.EMPNO ${sortOrder}</if>
+                <if test="sortKey == 'empNm'">U.EMP_NM ${sortOrder}</if>
+                <if test="sortKey == 'pstNm'">U.PST_NM ${sortOrder}</if>
+                <if test="sortKey == 'uzYn'">U.UZ_YN ${sortOrder}</if>
+                <if test="sortKey == 'permNm'">P.PERM_NM ${sortOrder}</if>
+                <if test="sortKey == 'regEmpNo'">U.REG_EMPNO ${sortOrder}</if>
+                <if test="sortKey == 'regTime'">U.REG_TIME ${sortOrder}</if>
+                <if test="sortKey == 'chngEmpNo'">U.CHNG_EMPNO ${sortOrder}</if>
+                <if test="sortKey == 'chngTime'">U.CHNG_TIME ${sortOrder}</if>
+            </when>
+            <otherwise>U.REG_TIME DESC, U.EMPNO DESC</otherwise>
+        </choose>
+    </sql>
+
+	<select id="count" parameterType="com.mobileleader.edoc.monitoring.common.form.UserListForm" resultType="java.lang.Integer">
+		SELECT 
+			COUNT(*)
+  		FROM 
+  			EDS_USER_MGMT U		
+		<include refid="WhereClause"/>  
+	</select>
+	
+	<select id="selectList" parameterType="com.mobileleader.edoc.monitoring.common.form.UserListForm" resultMap="BaseResultMap">
+		SELECT * FROM ( SELECT rownum rnum, a.* from (
+			SELECT 
+				<include refid="Base_Column_List" />,
+				P.PERM_NM
+	  		FROM 
+	  			EDS_USER_MGMT U
+	  			left join EDS_PERM_MGMT P ON U.PERM_ID = P.PERM_ID	
+			<include refid="WhereClause"/>  
+			ORDER BY 
+				<include refid="SortClause"/>  	
+		) a WHERE rownum <![CDATA[ <= ]]> #{pageEndIndex, jdbcType=INTEGER} ) WHERE rnum <![CDATA[ >= ]]> #{pageStartIndex, jdbcType=INTEGER}	
+	</select>	
+	
+	<select id="selectByEmpNo" parameterType="String" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List"/>
+  		FROM 
+  			EDS_USER_MGMT U
+  		WHERE
+			U.EMPNO = #{empNo, jdbcType=VARCHAR} 
+	</select>	
+	
+	<insert id="insert" parameterType="com.mobileleader.edoc.monitoring.db.dto.UserMgmtDto">
+		INSERT INTO EDS_USER_MGMT (
+			EMPNO,
+			PSWD,
+			PERM_ID,
+			BRCD,
+			BRN_NM,
+			EMP_NM,
+			PST_NM,
+			UZ_YN,
+			REG_EMPNO,
+			REG_TIME,
+			CHNG_EMPNO,
+			CHNG_TIME		
+			)
+			VALUES(
+			#{empNo, jdbcType=VARCHAR},
+			#{password, jdbcType=VARCHAR},  
+			#{permId, jdbcType=INTEGER},			
+			#{brcd, jdbcType=VARCHAR}, 
+			#{brnNm, jdbcType=VARCHAR}, 
+			#{empNm, jdbcType=VARCHAR}, 
+			#{pstNm, jdbcType=VARCHAR}, 
+			#{uzYn, jdbcType=VARCHAR},
+			#{regEmpNo, jdbcType=VARCHAR},
+			SYSTIMESTAMP,
+			#{chngEmpNo, jdbcType=VARCHAR},
+			SYSTIMESTAMP
+			)
+	</insert>
+	
+	<update id="update" parameterType="com.mobileleader.edoc.monitoring.db.dto.UserMgmtDto">
+		UPDATE EDS_USER_MGMT
+		SET
+			PSWD = #{password, jdbcType=VARCHAR},  
+			PERM_ID = #{permId, jdbcType=INTEGER},
+			BRCD = #{brcd, jdbcType=VARCHAR},
+			BRN_NM = #{brnNm, jdbcType=VARCHAR}, 
+			EMP_NM = #{empNm, jdbcType=VARCHAR},
+			PST_NM = #{pstNm, jdbcType=VARCHAR}, 
+			UZ_YN = #{uzYn, jdbcType=VARCHAR},
+			CHNG_EMPNO = #{chngEmpNo, jdbcType=VARCHAR},
+			CHNG_TIME = SYSTIMESTAMP
+		WHERE
+			EMPNO = #{empNo, jdbcType=VARCHAR} 
+	</update>
+	
+	<delete id="delete" parameterType="String">
+		DELETE
+		FROM
+			EDS_USER_MGMT
+  		WHERE
+			 EMPNO = #{empNo, jdbcType=VARCHAR} 
+	</delete>
+	
+	<update id="initializePassword" parameterType="HashMap">
+		UPDATE 
+			EDS_USER_MGMT
+		SET
+			PSWD = #{password, jdbcType=VARCHAR},
+			PSWD_ERR_CNT = 0
+		WHERE
+			EMPNO IN
+			<foreach collection="empnoList" item="item" index="index" separator="," open="(" close=")">
+			    #{item, jdbcType=VARCHAR}
+			</foreach> 
+	</update>
+	
+	<update id="updatePasswordErrorCount" parameterType="HashMap">
+		UPDATE
+			EDS_USER_MGMT
+		SET
+			PSWD_ERR_CNT = #{passwordErrorCount, jdbcType=INTEGER}
+		WHERE
+			EMPNO = #{empNo, jdbcType=VARCHAR}
+	</update>
+</mapper>
